@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Reach — Google Business Profile Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+        /* Nav */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .logo span { color: #e94560; }
+        nav a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        nav a:hover { color: #e94560; }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero h1 span { color: #e94560; }
+        .hero p {
+            font-size: 20px;
+            color: #555;
+            max-width: 550px;
+            margin: 0 auto 40px;
+        }
+        .hero-cta {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 17px;
+            transition: background 0.2s;
+        }
+        .hero-cta:hover { background: #333; }
+
+        .trust-row {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 14px;
+            color: #888;
+        }
+        .trust-row span { display: flex; align-items: center; gap: 6px; }
+
+        /* How it works */
+        .how {
+            padding: 80px 0;
+            background: #f8f8f8;
+        }
+        .how h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 60px;
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+        .step { text-align: center; }
+        .step-num {
+            width: 48px;
+            height: 48px;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            margin: 0 auto 16px;
+        }
+        .step h3 { font-size: 20px; margin-bottom: 10px; }
+        .step p { color: #666; font-size: 15px; }
+
+        /* Pricing */
+        .pricing {
+            padding: 80px 0;
+        }
+        .pricing h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+        .pricing-sub {
+            text-align: center;
+            color: #666;
+            margin-bottom: 50px;
+        }
+        .pricing-card {
+            max-width: 400px;
+            margin: 0 auto;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            padding: 48px 40px;
+            text-align: center;
+        }
+        .price {
+            font-size: 56px;
+            font-weight: 700;
+        }
+        .price span {
+            font-size: 20px;
+            color: #666;
+            font-weight: 400;
+        }
+        .price-sub {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        .features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        .features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+        .features li::before {
+            content: "✓";
+            color: #e94560;
+            font-weight: 700;
+        }
+        .pricing-cta {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 14px 48px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .pricing-cta:hover { background: #333; }
+
+        /* About */
+        .about {
+            padding: 80px 0;
+            background: #f8f8f8;
+        }
+        .about .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        .about h2 { font-size: 32px; margin-bottom: 16px; }
+        .about p { color: #555; margin-bottom: 12px; }
+        .about-img {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #ddd;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 48px;
+        }
+
+        /* Contact */
+        .contact {
+            padding: 60px 0;
+            text-align: center;
+        }
+        .contact h2 { font-size: 28px; margin-bottom: 12px; }
+        .contact p { color: #666; margin-bottom: 24px; }
+        .contact-btn {
+            display: inline-block;
+            background: #e94560;
+            color: #fff;
+            padding: 14px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 30px 0;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+
+        @media (max-width: 700px) {
+            .hero h1 { font-size: 32px; }
+            .steps { grid-template-columns: 1fr; }
+            .about .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <div class="logo">Local<span>Reach</span></div>
+            <a href="mailto:marcus@localreach.co">marcus@localreach.co</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Your Google Business Profile,<br><span>handled.</span></h1>
+            <p>We post weekly updates, respond to every review, and track what's working. More calls, more walk-ins. $297/month.</p>
+            <a href="#contact" class="hero-cta">Get Started →</a>
+            <div class="trust-row">
+                <span>📋 Weekly posts</span>
+                <span>⭐ Review management</span>
+                <span>📊 Monthly reports</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="how" id="how">
+        <div class="container">
+            <h2>How it works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>We set you up</h3>
+                    <p>Give us 10 minutes to understand your business. We'll learn your voice, your offers, your style.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>We handle everything</h3>
+                    <p>Weekly posts. Review responses. Photo updates. Insight tracking. All in your brand's voice.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>You get results</h3>
+                    <p>More profile views. More calls. More direction requests. More customers walking through your door.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2>Simple pricing</h2>
+            <p class="pricing-sub">One flat rate. No contracts. Cancel anytime.</p>
+            <div class="pricing-card">
+                <div class="price">$297 <span>/mo</span></div>
+                <p class="price-sub">One local business profile</p>
+                <ul class="features">
+                    <li>4 weekly posts — custom written for your business</li>
+                    <li>Review monitoring & responses</li>
+                    <li>Photo management</li>
+                    <li>Monthly insights report</li>
+                    <li>Q&A monitoring</li>
+                    <li>Direct line to Marcus</li>
+                </ul>
+                <a href="#contact" class="pricing-cta">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="container">
+            <div>
+                <h2>Hey, I'm Marcus</h2>
+                <p>I run Local Reach. Before this, I managed online presence for a handful of local Houston businesses — restaurants, a dental practice, a plumbing company. I saw the same thing over and over: great businesses with neglected Google profiles.</p>
+                <p>They knew they should be posting. Responding to reviews. Keeping their profile fresh. But running a business doesn't leave time for that.</p>
+                <p>So I built Local Reach. I handle your profile so you can focus on what you do best. I keep it personal — every post, every response, written to sound like you. Because your customers should hear your voice, not a robot's.</p>
+                <p style="font-weight: 600;">— Marcus</p>
+            </div>
+            <div class="about-img">
+                👋
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2>Want more customers?</h2>
+            <p>Send me a note. I'll show you how we can help your business show up better on Google.</p>
+            <a href="mailto:marcus@localreach.co" class="contact-btn">Email Marcus →</a>
+            <p style="margin-top:16px;color:#888;font-size:14px;">marcus@localreach.co</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            Local Reach &mdash; Houston, TX
+        </div>
+    </footer>
+
+</body>
+</html>
