@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Proposal Generator</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --surface: #fff;
+  --border: #e5e7eb;
+  --text: #1a1a2e;
+  --text2: #6b7280;
+  --accent: #1d4ed8;
+  --accent2: #0f3460;
+  --green: #22c55e;
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 1000px; margin: 0 auto; padding: 32px 20px; }
+h1 { font-size:28px; margin-bottom:4px; }
+.sub { color:var(--text2); margin-bottom:24px; }
+
+.tabs { display:flex; gap:8px; margin-bottom:24px; }
+.tabs button { padding:8px 20px; border-radius:20px; border:1px solid var(--border); background:var(--surface); cursor:pointer; font-size:14px; font-weight:500; transition:0.15s; }
+.tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.tabs button:hover:not(.active) { border-color:var(--accent); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px; }
+.card h2 { font-size:18px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-group { margin-bottom:12px; }
+.form-group.full { grid-column:1/-1; }
+.form-group label { display:block; font-size:13px; font-weight:600; color:#444; margin-bottom:4px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:8px 12px; border:2px solid var(--border); border-radius:8px; font-size:13px; outline:none; transition:0.15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--accent); }
+
+.btn { padding:10px 24px; border-radius:8px; border:none; cursor:pointer; font-size:14px; font-weight:600; transition:0.15s; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:var(--accent2); }
+.btn-success { background:var(--green); color:#000; }
+.btn-success:hover { background:#16a34a; }
+.btn-outline { background:transparent; border:2px solid var(--border); color:var(--text); }
+.btn-outline:hover { border-color:var(--accent); }
+
+.preview { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:32px; margin-top:16px; font-size:14px; line-height:1.7; display:none; }
+.preview.show { display:block; }
+.preview .header { border-bottom:2px solid var(--accent); padding-bottom:16px; margin-bottom:16px; }
+.preview .header h2 { font-size:22px; margin:0; color:var(--accent); }
+.preview .header .meta { color:var(--text2); font-size:13px; margin-top:4px; }
+.preview .section { margin-bottom:16px; }
+.preview .section h3 { font-size:15px; margin-bottom:8px; color:var(--accent2); border-bottom:1px solid var(--border); padding-bottom:4px; }
+.preview .price-box { background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:16px; margin:12px 0; }
+.preview .price-box .amount { font-size:24px; font-weight:700; color:var(--accent); }
+.preview .price-box .detail { font-size:13px; color:var(--text2); }
+.preview .sign-line { border-top:1px solid var(--border); padding-top:24px; margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+
+.copy-bar { display:flex; gap:8px; margin-top:12px; }
+.copy-bar button { padding:6px 16px; border-radius:6px; border:1px solid var(--border); background:var(--bg); cursor:pointer; font-size:12px; transition:0.15s; }
+.copy-bar button:hover { background:var(--accent); color:#fff; }
+
+/* Toggle for service selection */
+.service-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.service-option { padding:12px; border:2px solid var(--border); border-radius:8px; cursor:pointer; transition:0.15s; text-align:center; }
+.service-option:hover { border-color:var(--accent); }
+.service-option.selected { border-color:var(--accent); background:#f0f7ff; }
+.service-option .name { font-weight:600; font-size:14px; }
+.service-option .price { font-size:12px; color:var(--text2); margin-top:2px; }
+
+.actions-row { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+
+@media print {
+  .tabs, .tabs button, .copy-bar, .actions-row, .card { display:none; }
+  .preview { display:block !important; border:none; padding:0; }
+  .preview.show { display:block !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📄 Proposal Generator</h1>
+  <p class="sub">Generate professional proposals and SOWs for both ventures. Customize, copy, send.</p>
+
+  <div class="tabs">
+    <button class="active" onclick="showVenture('lr')">Local Reach</button>
+    <button onclick="showVenture('aaa')">Rex AAA</button>
+  </div>
+
+  <!-- Local Reach Proposal Form -->
+  <div id="tab-lr" class="tab-content active">
+    <div class="card">
+      <h2>🏢 Client Details</h2>
+      <div class="form-grid">
+        <div class="form-group"><label>Business Name</label><input type="text" id="lr-name" placeholder="e.g. Garcia Roofing"></div>
+        <div class="form-group"><label>Contact Name</label><input type="text" id="lr-contact" placeholder="e.g. Mike Garcia"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="lr-email" placeholder="mike@garcia.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="lr-phone" placeholder="(713) 555-..."></div>
+        <div class="form-group full"><label>Business Address</label><input type="text" id="lr-address" placeholder="123 Main St, Houston, TX 77001"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📋 Services & Pricing</h2>
+      <div class="service-grid" id="lr-services">
+        <div class="service-option selected" data-price="297" onclick="toggleService(this,'lr')">
+          <div class="name">GBP Management</div>
+          <div class="price">$297/month</div>
+          <div style="font-size:11px;color:var(--text2);">Posting, reviews, optimization</div>
+        </div>
+        <div class="service-option" data-price="497" onclick="toggleService(this,'lr')">
+          <div class="name">GBP + Content</div>
+          <div class="price">$497/month</div>
+          <div style="font-size:11px;color:var(--text2);">Management + daily content</div>
+        </div>
+        <div class="service-option" data-price="797" onclick="toggleService(this,'lr')">
+          <div class="name">Multi-Location</div>
+          <div class="price">$797/month</div>
+          <div style="font-size:11px;color:var(--text2);">2-5 locations managed</div>
+        </div>
+        <div class="service-option" data-price="1497" onclick="toggleService(this,'lr')">
+          <div class="name">Agency White Label</div>
+          <div class="price">$1,497/month</div>
+          <div style="font-size:11px;color:var(--text2);">Up to 10 client profiles</div>
+        </div>
+      </div>
+      <div class="form-row" style="display:flex;gap:16px;align-items:center;margin-top:8px;">
+        <div><label style="font-size:13px;font-weight:600;">Setup Fee:</label> <span id="lr-setup">$0</span></div>
+        <div><label style="font-size:13px;font-weight:600;">Monthly:</label> <strong style="font-size:18px;" id="lr-monthly-display">$297</strong></div>
+        <div><label style="font-size:13px;font-weight:600;">Annual (2 months free):</label> <strong id="lr-annual-display">$2,970</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📝 Proposal Notes</h2>
+      <div class="form-grid">
+        <div class="form-group full"><label>Specific Observations (include competitor gaps found)</label><textarea id="lr-obs" rows="3" placeholder="e.g. You're at 12 reviews while top competitor has 50+. No Posts in 30 days. Missing service categories."></textarea></div>
+        <div class="form-group full"><label>Expected Outcomes</label><textarea id="lr-outcomes" rows="2" placeholder="e.g. 25+ reviews in first 60 days, weekly posts, top-3 local ranking"></textarea></div>
+      </div>
+      <div class="actions-row">
+        <button class="btn btn-primary" onclick="genProposal('lr')">📄 Generate Proposal</button>
+        <button class="btn btn-outline" onclick="clearForm('lr')">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview" id="lr-preview"></div>
+  </div>
+
+  <!-- Rex AAA Proposal Form -->
+  <div id="tab-aaa" class="tab-content">
+    <div class="card">
+      <h2>🏢 Client Details</h2>
+      <div class="form-grid">
+        <div class="form-group"><label>Business Name</label><input type="text" id="aaa-name" placeholder="e.g. Keller Williams Memorial"></div>
+        <div class="form-group"><label>Contact Name</label><input type="text" id="aaa-contact" placeholder="e.g. Mike Sullivan"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="aaa-email" placeholder="mike@kwmemorial.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="aaa-phone" placeholder="(713) 461-..."></div>
+        <div class="form-group full"><label>Business Address</label><input type="text" id="aaa-address" placeholder="123 Main St, Houston, TX"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🤖 Automation Package</h2>
+      <div class="service-grid" id="aaa-services">
+        <div class="service-option selected" data-setup="3000" data-monthly="1000" onclick="toggleAAAService(this)">
+          <div class="name">Lead Gen System</div>
+          <div class="price">$3K setup + $1K/mo</div>
+          <div style="font-size:11px;color:var(--text2);">Auto-capture, 60-sec text, 5x follow-up</div>
+        </div>
+        <div class="service-option" data-setup="2000" data-monthly="500" onclick="toggleAAAService(this)">
+          <div class="name">AI Support Chat</div>
+          <div class="price">$2K setup + $500/mo</div>
+          <div style="font-size:11px;color:var(--text2);">24/7 customer support AI</div>
+        </div>
+        <div class="service-option" data-setup="4500" data-monthly="1500" onclick="toggleAAAService(this)">
+          <div class="name">Growth Stack</div>
+          <div class="price">$4.5K setup + $1.5K/mo</div>
+          <div style="font-size:11px;color:var(--text2);">Lead gen + support chat</div>
+        </div>
+        <div class="service-option" data-setup="7000" data-monthly="3000" onclick="toggleAAAService(this)">
+          <div class="name">Full Suite</div>
+          <div class="price">$7K setup + $3K/mo</div>
+          <div style="font-size:11px;color:var(--text2);">Lead gen + support + content</div>
+        </div>
+      </div>
+      <div class="form-row" style="display:flex;gap:16px;align-items:center;margin-top:8px;">
+        <div><label style="font-size:13px;font-weight:600;">Setup Fee:</label> <strong style="font-size:18px;" id="aaa-setup-display">$3,000</strong></div>
+        <div><label style="font-size:13px;font-weight:600;">Monthly:</label> <strong style="font-size:18px;" id="aaa-monthly-display">$1,000</strong></div>
+        <div><label style="font-size:13px;font-weight:600;">First Year Total:</label> <strong id="aaa-year-display">$15,000</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📝 Proposal Notes</h2>
+      <div class="form-grid">
+        <div class="form-group full"><label>Specific Pain Points Identified</label><textarea id="aaa-pain" rows="3" placeholder="e.g. 47 reviews vs 89 for competitor. 42 missed leads/month. Manual follow-up."></textarea></div>
+        <div class="form-group full"><label>Expected Outcomes / ROI</label><textarea id="aaa-roi" rows="2" placeholder="e.g. 40% more appointments, 60-sec response time, recapture 60% of lost leads"></textarea></div>
+      </div>
+      <div class="actions-row">
+        <button class="btn btn-primary" onclick="genProposal('aaa')">📄 Generate Proposal</button>
+        <button class="btn btn-outline" onclick="clearForm('aaa')">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <div class="preview" id="aaa-preview"></div>
+  </div>
+</div>
+
+<script>
+let currentTab = 'lr';
+
+function showVenture(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+// Local Reach service toggle
+function toggleService(el, venture) {
+  const parent = document.getElementById(`${venture}-services`);
+  parent.querySelectorAll('.service-option').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  updatePricing(venture);
+}
+
+function updatePricing(venture) {
+  const selected = document.querySelector(`#${venture}-services .service-option.selected`);
+  if (!selected) return;
+  const monthly = parseInt(selected.dataset.price);
+  document.getElementById(`${venture}-monthly-display`).textContent = `$${monthly.toLocaleString()}`;
+  document.getElementById(`${venture}-annual-display`).textContent = `$${(monthly * 10).toLocaleString()}`;
+}
+
+// AAA service toggle
+function toggleAAAService(el) {
+  document.querySelectorAll('#aaa-services .service-option').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  updateAAAPricing();
+}
+
+function updateAAAPricing() {
+  const selected = document.querySelector('#aaa-services .service-option.selected');
+  if (!selected) return;
+  const setup = parseInt(selected.dataset.setup);
+  const monthly = parseInt(selected.dataset.monthly);
+  document.getElementById('aaa-setup-display').textContent = `$${setup.toLocaleString()}`;
+  document.getElementById('aaa-monthly-display').textContent = `$${monthly.toLocaleString()}`;
+  document.getElementById('aaa-year-display').textContent = `$${(setup + monthly * 12).toLocaleString()}`;
+}
+
+// Generate Proposal
+function genProposal(venture) {
+  if (venture === 'lr') genLRProposal();
+  else genAAAProposal();
+}
+
+function genLRProposal() {
+  const biz = document.getElementById('lr-name').value || 'Your Business';
+  const contact = document.getElementById('lr-contact').value || 'Valued Client';
+  const email = document.getElementById('lr-email').value || 'client@email.com';
+  const phone = document.getElementById('lr-phone').value || '(713) 555-0123';
+  const address = document.getElementById('lr-address').value || 'Houston, TX';
+  const obs = document.getElementById('lr-obs').value || 'Custom observation';
+  const outcomes = document.getElementById('lr-outcomes').value || 'Improved online presence and lead generation';
+  
+  const selected = document.querySelector('#lr-services .service-option.selected');
+  const monthly = selected ? parseInt(selected.dataset.price) : 297;
+  const annual = monthly * 10;
+  const serviceName = selected ? selected.querySelector('.name').textContent : 'GBP Management';
+  
+  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+  
+  const proposal = `
+<div class="header">
+  <h2>📋 PROPOSAL: GBP Management Services</h2>
+  <div class="meta">
+    <strong>Prepared for:</strong> ${biz}<br>
+    <strong>Contact:</strong> ${contact} · ${email} · ${phone}<br>
+    <strong>Date:</strong> ${today}<br>
+    <strong>Proposal valid for:</strong> 14 days
+  </div>
+</div>
+
+<div class="section">
+  <h3>Executive Summary</h3>
+  <p>Thank you for the opportunity to present this proposal for ${biz}. After reviewing your Google Business Profile, we've identified several opportunities to improve your local search presence and drive more customers to your business.</p>
+</div>
+
+<div class="section">
+  <h3>Current Situation</h3>
+  <p>${obs}</p>
+</div>
+
+<div class="section">
+  <h3>Proposed Solution: ${serviceName}</h3>
+  <p><strong>What's included:</strong></p>
+  <ul style="padding-left:20px;line-height:2;">
+    <li>✅ <strong>Weekly Google Posts</strong> — Custom content written in your brand voice</li>
+    <li>✅ <strong>Review Management</strong> — Response to every review within 24 hours</li>
+    <li>✅ <strong>Profile Optimization</strong> — Complete audit and optimization of all attributes, categories, and business info</li>
+    <li>✅ <strong>Photo Management</strong> — Strategic photo uploads to showcase your business</li>
+    <li>✅ <strong>Q&A Management</strong> — Monitor and respond to all customer questions</li>
+    <li>✅ <strong>Monthly Reporting</strong> — Detailed performance report with insights and recommendations</li>
+    <li>✅ <strong>Competitor Monitoring</strong> — Track competitor profiles for strategic advantage</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>Expected Outcomes</h3>
+  <p>${outcomes}</p>
+  <ul style="padding-left:20px;line-height:2;">
+    <li>📈 <strong>30-50% increase</strong> in profile views within 60 days</li>
+    <li>⭐ <strong>25+ new reviews</strong> in the first 60 days</li>
+    <li>📞 <strong>More inbound calls</strong> from improved local ranking</li>
+    <li>💰 <strong>ROI:</strong> Average client sees 5-10x return on investment</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>Pricing</h3>
+  <div class="price-box">
+    <div class="amount">$${monthly.toLocaleString()}<span style="font-size:14px;font-weight:400;color:var(--text2);"> /month</span></div>
+    <div class="detail">$${annual.toLocaleString()} when billed annually (2 months free) · Setup: $0</div>
+    <div class="detail" style="margin-top:4px;">Cancel anytime with 30 days notice</div>
+  </div>
+  <p style="font-size:13px;color:var(--text2);margin-top:8px;">First 30 days are a trial — if you're not satisfied, you pay nothing.</p>
+</div>
+
+<div class="section">
+  <h3>Next Steps</h3>
+  <ol style="padding-left:20px;line-height:2;">
+    <li>Review this proposal</li>
+    <li>Reply to confirm or schedule a 10-minute call to discuss</li>
+    <li>We set up your profile within 48 hours of sign-up</li>
+    <li>First content published within 72 hours</li>
+  </ol>
+</div>
+
+<div class="sign-line">
+  <div>
+    <p><strong>Local Reach</strong></p>
+    <p>Marcus Thompson</p>
+    <p>marcus@localreach.co</p>
+    <p>https://mtutt02.github.io/Local-reach1/</p>
+  </div>
+  <div>
+    <p><strong>Client Acceptance</strong></p>
+    <p style="margin-top:16px;">Name: _________________________</p>
+    <p style="margin-top:16px;">Date: _________________________</p>
+  </div>
+</div>
+  `.trim();
+
+  const preview = document.getElementById('lr-preview');
+  preview.innerHTML = proposal;
+  preview.classList.add('show');
+  preview.scrollIntoView({ behavior: 'smooth' });
+
+  // Add copy buttons
+  const copyBar = document.createElement('div');
+  copyBar.className = 'copy-bar';
+  copyBar.innerHTML = `<button onclick="copyProposal('lr')">📋 Copy Full Proposal</button>
+  <button onclick="printProposal('lr')">🖨️ Print / Save PDF</button>
+  <button onclick="copyEmailBody('lr')">✉️ Copy Email Body</button>`;
+  preview.insertBefore(copyBar, preview.firstChild);
+}
+
+function genAAAProposal() {
+  const biz = document.getElementById('aaa-name').value || 'Your Business';
+  const contact = document.getElementById('aaa-contact').value || 'Valued Client';
+  const email = document.getElementById('aaa-email').value || 'client@email.com';
+  const phone = document.getElementById('aaa-phone').value || '(713) 555-0123';
+  const address = document.getElementById('aaa-address').value || 'Houston, TX';
+  const pain = document.getElementById('aaa-pain').value || 'Custom pain points';
+  const roi = document.getElementById('aaa-roi').value || 'Improved lead conversion';
+  
+  const selected = document.querySelector('#aaa-services .service-option.selected');
+  const setup = selected ? parseInt(selected.dataset.setup) : 3000;
+  const monthly = selected ? parseInt(selected.dataset.monthly) : 1000;
+  const serviceName = selected ? selected.querySelector('.name').textContent : 'Lead Gen System';
+  
+  const firstYear = setup + (monthly * 12);
+  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+  
+  const proposal = `
+<div class="header">
+  <h2>🤖 PROPOSAL: AI Automation Services</h2>
+  <div class="meta">
+    <strong>Prepared for:</strong> ${biz}<br>
+    <strong>Contact:</strong> ${contact} · ${email} · ${phone}<br>
+    <strong>Date:</strong> ${today}<br>
+    <strong>Proposal valid for:</strong> 14 days
+  </div>
+</div>
+
+<div class="section">
+  <h3>Executive Summary</h3>
+  <p>Thank you for the opportunity to present this proposal for ${biz}. After understanding your current lead generation process, we've identified significant opportunities to automate and improve your conversion pipeline using AI-powered systems.</p>
+</div>
+
+<div class="section">
+  <h3>Current Challenges</h3>
+  <p>${pain}</p>
+</div>
+
+<div class="section">
+  <h3>Proposed Solution: ${serviceName}</h3>
+  <p><strong>What's included:</strong></p>
+  <ul style="padding-left:20px;line-height:2;">
+    <li>✅ <strong>Instant Lead Response</strong> — Automated text within 60 seconds of inquiry</li>
+    <li>✅ <strong>5-Touch Follow-Up</strong> — Automatic follow-ups over 7 days without manual work</li>
+    <li>✅ <strong>Smart Lead Scoring</strong> — Prioritize hot leads for immediate attention</li>
+    <li>✅ <strong>Review Generation</strong> — Automated review requests after service completion</li>
+    <li>✅ <strong>Analytics Dashboard</strong> — Real-time view of lead pipeline and conversion rates</li>
+    <li>✅ <strong>Integration</strong> — Connects with your existing CRM and website</li>
+    <li>✅ <strong>Custom Training</strong> — System trained on your business voice and processes</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>Expected ROI</h3>
+  <p>${roi}</p>
+  <ul style="padding-left:20px;line-height:2;">
+    <li>⚡ <strong>60-second response</strong> — leads convert 7x more when contacted within 1 minute</li>
+    <li>📈 <strong>30-50% more appointments</strong> from existing lead volume</li>
+    <li>⏱️ <strong>10+ hours/week saved</strong> — no more manual follow-up</li>
+    <li>💰 <strong>Average ROI:</strong> 8-15x monthly investment in captured leads</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>Pricing</h3>
+  <div class="price-box">
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div><span style="font-size:13px;color:var(--text2);">Setup Fee</span><br><span class="amount">$${setup.toLocaleString()}</span></div>
+      <div><span style="font-size:13px;color:var(--text2);">Monthly Retainer</span><br><span class="amount">$${monthly.toLocaleString()}<span style="font-size:14px;font-weight:400;color:var(--text2);"> /mo</span></span></div>
+      <div><span style="font-size:13px;color:var(--text2);">First Year Total</span><br><span class="amount">$${firstYear.toLocaleString()}</span></div>
+    </div>
+    <div class="detail" style="margin-top:8px;">Cancel anytime with 30 days notice after setup period</div>
+  </div>
+  <p style="font-size:13px;color:var(--text2);margin-top:8px;">First 30 days are a trial — if you're not satisfied, you pay nothing for the setup.</p>
+</div>
+
+<div class="section">
+  <h3>Next Steps</h3>
+  <ol style="padding-left:20px;line-height:2;">
+    <li>Review this proposal</li>
+    <li>Schedule a 15-minute demo to see the system in action</li>
+    <li>We deploy within 5 business days of sign-up</li>
+    <li>Full training provided for you and your team</li>
+  </ol>
+</div>
+
+<div class="sign-line">
+  <div>
+    <p><strong>Rex Automation Solutions</strong></p>
+    <p>Rex Team</p>
+    <p>hello@rexautomation.io</p>
+    <p>Houston, TX</p>
+  </div>
+  <div>
+    <p><strong>Client Acceptance</strong></p>
+    <p style="margin-top:16px;">Name: _________________________</p>
+    <p style="margin-top:16px;">Date: _________________________</p>
+  </div>
+</div>
+  `.trim();
+
+  const preview = document.getElementById('aaa-preview');
+  preview.innerHTML = proposal;
+  preview.classList.add('show');
+  preview.scrollIntoView({ behavior: 'smooth' });
+
+  const copyBar = document.createElement('div');
+  copyBar.className = 'copy-bar';
+  copyBar.innerHTML = `<button onclick="copyProposal('aaa')">📋 Copy Full Proposal</button>
+  <button onclick="printProposal('aaa')">🖨️ Print / Save PDF</button>
+  <button onclick="copyEmailBody('aaa')">✉️ Copy Email Body</button>`;
+  preview.insertBefore(copyBar, preview.firstChild);
+}
+
+function copyProposal(venture) {
+  const preview = document.getElementById(`${venture}-preview`);
+  const text = preview.textContent.replace('📋 Copy Full Proposal🖨️ Print / Save PDF✉️ Copy Email Body', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = preview.querySelector('.copy-bar button');
+    if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy Full Proposal', 2000); }
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+function copyEmailBody(venture) {
+  const contact = document.getElementById(`${venture}-contact`).value || 'Valued Client';
+  const biz = document.getElementById(`${venture}-name`).value || 'Your Business';
+  
+  let text = `Hi ${contact},
+
+I'm following up on the proposal I prepared for ${biz}. 
+
+I've attached the full proposal details above — it covers everything we discussed, including the specific opportunities we identified, the services we recommend, and the pricing.
+
+Quick highlights:
+• Everything you need to get started included
+• First 30 days are a trial — no risk
+• We can have everything set up within 48 hours
+
+Want to hop on a 10-minute call this week to go through it?
+
+Best,
+Marcus (Local Reach) / Rex Team (AAA)
+
+P.S. The full proposal is included above — feel free to review at your convenience.`;
+  
+  navigator.clipboard.writeText(text);
+  alert('✉️ Email body copied! Paste into your email and add the proposal below.');
+}
+
+function printProposal(venture) {
+  window.print();
+}
+
+function clearForm(venture) {
+  document.querySelectorAll(`#tab-${venture} input, #tab-${venture} textarea`).forEach(el => el.value = '');
+  document.getElementById(`${venture}-preview`).innerHTML = '';
+  document.getElementById(`${venture}-preview`).classList.remove('show');
+  
+  // Reset to first service option
+  const services = document.querySelectorAll(`#${venture}-services .service-option`);
+  services.forEach((s, i) => s.classList.toggle('selected', i === 0));
+  if (venture === 'lr') updatePricing('lr');
+  else updateAAAPricing();
+}
+
+// Initialize
+updatePricing('lr');
+updateAAAPricing();
+</script>
+</body>
+</html>
