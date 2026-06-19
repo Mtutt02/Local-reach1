@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Prospect Prioritizer</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+.container { max-width:1200px; margin:0 auto; padding:24px 20px; }
+h1 { font-size:24px; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.sub { color:var(--text2); margin-bottom:20px; }
+
+/* Controls */
+.controls { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.controls input { padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; width:200px; outline:none; }
+.controls input:focus { border-color:var(--accent); }
+.controls select { padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; outline:none; }
+.controls .badge { padding:4px 12px; border-radius:12px; font-size:12px; font-weight:600; }
+.badge-high { background:#3a1a1a; color:var(--red); }
+.badge-medium { background:#2a2a1a; color:var(--orange); }
+.badge-low { background:#1a2a1a; color:var(--green); }
+.badge-lr { background:#1a3a2a; color:var(--green); }
+.badge-aaa { background:#2a1a3a; color:var(--purple); }
+
+/* Summary */
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-bottom:20px; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; text-align:center; }
+.stat-card .num { font-size:22px; font-weight:700; }
+.stat-card .label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
+
+/* Prospect Cards */
+.prospect-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:8px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; cursor:pointer; transition:0.15s; }
+.card:hover { border-color:var(--accent); }
+.card .top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+.card .name { font-weight:600; font-size:14px; }
+.card .venture { font-size:10px; padding:1px 6px; border-radius:8px; }
+.card .venture.lr { background:#1a3a2a; color:var(--green); }
+.card .venture.aaa { background:#2a1a3a; color:var(--purple); }
+.card .meta { font-size:12px; color:var(--text2); margin-bottom:4px; line-height:1.6; }
+.card .score-bar { height:4px; background:var(--surface2); border-radius:2px; margin:6px 0; overflow:hidden; }
+.card .score-fill { height:100%; border-radius:2px; transition:width 0.3s; }
+.card .score-fill.high { background:var(--green); }
+.card .score-fill.medium { background:var(--orange); }
+.card .score-fill.low { background:var(--red); }
+.card .actions { display:flex; gap:4px; margin-top:6px; }
+.card .actions button { padding:3px 10px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:11px; transition:0.15s; }
+.card .actions button:hover { background:var(--surface2); color:var(--text); }
+.card .tags { display:flex; gap:3px; flex-wrap:wrap; margin-top:4px; }
+.card .tag { font-size:10px; padding:1px 6px; border-radius:6px; background:var(--surface2); color:var(--text2); }
+
+/* Detail modal */
+.modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:200; justify-content:center; align-items:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; }
+.modal h2 { font-size:18px; margin-bottom:12px; }
+.modal .section { margin-bottom:16px; }
+.modal .section h3 { font-size:13px; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.modal p { font-size:13px; line-height:1.6; }
+.modal .pre-msg { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; white-space:pre-wrap; margin-top:6px; }
+.modal-actions { display:flex; gap:8px; margin-top:16px; justify-content:flex-end; }
+.btn { padding:8px 16px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:0.15s; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:#4a96e6; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text2); }
+
+.empty { text-align:center; padding:60px 20px; color:var(--text2); }
+
+@media (max-width:700px) {
+  .prospect-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎯 Prospect Prioritizer</h1>
+  <p class="sub">134 prospects ranked by conversion likelihood. Start at the top.</p>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search prospects..." oninput="filter()">
+    <select id="venture-filter" onchange="filter()">
+      <option value="all">All Ventures</option>
+      <option value="lr">Local Reach</option>
+      <option value="aaa">Rex AAA</option>
+    </select>
+    <select id="priority-filter" onchange="filter()">
+      <option value="all">All Priorities</option>
+      <option value="high">🔥 High Priority</option>
+      <option value="medium">⚡ Medium</option>
+      <option value="low">💤 Low</option>
+    </select>
+    <select id="industry-filter" onchange="filter()">
+      <option value="all">All Industries</option>
+    </select>
+    <span style="font-size:12px;color:var(--text2);" id="count-display"></span>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <div class="prospect-grid" id="grid"></div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-name">Prospect Name</h2>
+    <div class="section"><h3>Venture</h3><p id="modal-venture"></p></div>
+    <div class="section"><h3>Score</h3><p id="modal-score"></p></div>
+    <div class="section"><h3>Why This Score</h3><p id="modal-why" style="color:var(--text2);"></p></div>
+    <div class="section"><h3>Contact</h3><p id="modal-contact"></p></div>
+    <div class="section"><h3>📋 Pre-Written Message</h3><div class="pre-msg" id="modal-msg"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="copyMsg()">📋 Copy Message</button>
+      <button class="btn btn-outline" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// === DATA ===
+const PROSPECTS = [
+  // === Local Reach (25) ===
+  {id:'lr1',name:"Killen's BBQ",venture:'lr',industry:'Restaurant',city:'Pearland',contact:'Ronnie Killen',phone:'281-485-2272',reviews:27,gap:23,posts:0,responseRate:30,urgency:'high',quote:'Ronnie — big fan. Your Google profile is at 27 reviews while Truth and Gatlin\'s push 50+. Free audit, 2 minutes.',msg:'Hey Ronnie — big fan of Killen\'s. I noticed your Google profile is sitting at 27 reviews while competitors have 50+. I do free 2-minute GBP audits. Worth a look?\n\n— Marcus'},
+  {id:'lr2',name:"Truth BBQ",venture:'lr',industry:'Restaurant',city:'Houston',contact:'Leonard Botello IV',phone:'713-864-6900',reviews:1200,gap:0,posts:0,responseRate:40,urgency:'medium',quote:'James Beard winner but Q&A section is empty. Easy fix.',msg:'Hey Leonard — Truth is elite (James Beard says so). But your Q&A section is empty — people asking basic questions. Quick fix. Happy to point it out in 2 minutes.\n\n— Marcus'},
+  {id:'lr3',name:"The Pit Room",venture:'lr',industry:'Restaurant',city:'Houston',contact:'Grant',phone:'832-831-9668',reviews:280,gap:0,posts:0,responseRate:60,urgency:'medium',quote:'No Posts in 3 months. Easy win on Google visibility.',msg:'Hey Grant — love The Pit Room. Quick observation: no Google Posts in 3 months. Free real estate for search visibility. Happy to do a quick audit.\n\n— Marcus'},
+  {id:'lr4',name:"Corkscrew BBQ",venture:'lr',industry:'Restaurant',city:'Spring',contact:'Will & Nichole',phone:'281-370-0033',reviews:150,gap:0,posts:0,responseRate:50,urgency:'high',quote:'Top 50 Texas BBQ. ZERO Google Posts. Huge opportunity.',msg:'Hey Will/Nichole — Corkscrew is top 50 Texas BBQ. But zero Google Posts. Free visibility you\'re leaving on the table. Quick audit?\n\n— Marcus'},
+  {id:'lr5',name:"Gatlin's BBQ",venture:'lr',industry:'Restaurant',city:'Houston',contact:'Greg Gatlin',phone:'713-869-4227',reviews:520,gap:0,posts:0,responseRate:0,urgency:'high',quote:'No owner responses to reviews. Hurts ranking. Easy fix.',msg:'Hey Greg — Gatlin\'s is a Heights staple. You\'re not responding to reviews — that hurts ranking more than people realize. Free audit, 2 minutes?\n\n— Marcus'},
+  {id:'lr6',name:"Pinkerton's Barbecue",venture:'lr',industry:'Restaurant',city:'Houston',contact:'Grant Pinkerton',phone:'713-802-0990',reviews:200,gap:0,posts:0,responseRate:30,urgency:'medium',quote:'Good reviews but no recent Posts or photos.',msg:'Hey Grant — Pinkerton\'s is doing great but Google profile needs love. No recent Posts, old photos. Small tweaks, big difference. Free audit?\n\n— Marcus'},
+  {id:'lr7',name:"Roegels Barbecue Co.",venture:'lr',industry:'Restaurant',city:'Houston',contact:'Russell Roegels',phone:'713-829-6210',reviews:180,gap:0,posts:0,responseRate:20,urgency:'medium',quote:'Consistent quality. Q&A section completely empty.',msg:'Hey Russell — Roegels puts out consistent quality. But your Q&A is empty. People searching get no answers. Simple fix. Free audit?\n\n— Marcus'},
+  {id:'lr8',name:"Caracol",venture:'lr',industry:'Restaurant',city:'Houston',contact:'Hugo Ortega',phone:'713-622-9996',reviews:300,gap:0,posts:0,responseRate:40,urgency:'medium',quote:'High-end Mexican. Needs Q&A and Posts.',msg:'Hey Hugo — Caracol is incredible. Your GBP needs Q&A and Posts. Quick audit, free, no strings?\n\n— Marcus'},
+  {id:'lr9',name:"Five Star Air",venture:'lr',industry:'HVAC',city:'Houston',contact:'Owner',phone:'832-379-0200',reviews:67,gap:33,posts:0,responseRate:20,urgency:'high',quote:'AC season. Missing service attributes. HUGE opportunity NOW.',msg:'Hey — AC season is here and your Google profile is missing key service attributes. Customers searching for "emergency AC repair" might not find you. Free audit shows what\'s missing.\n\n— Marcus'},
+  {id:'lr10',name:"Blood Bros BBQ",venture:'lr',industry:'Restaurant',city:'Bellaire',contact:'Quy Hoang',phone:'832-831-0792',reviews:100,gap:0,posts:0,responseRate:30,urgency:'medium',quote:'Asian-Texan fusion. Bad photographer.',msg:'Hey Quy — Blood Bros has the most unique angle in Houston BBQ. But your Google photos are dark/blurry. Quick audit, 2 minutes?\n\n— Marcus'},
+  {id:'lr11',name:"Thompson Law",venture:'lr',industry:'Law',city:'Houston',contact:'Ryan Thompson',phone:'713-244-0000',reviews:13,gap:37,posts:0,responseRate:10,urgency:'high',quote:'13 reviews vs 50+. Big gap for a law firm.',msg:'Hey Ryan — 13 reviews while competitors have 50+. For a law firm, people compare. Free audit shows the gap and how to close it.\n\n— Marcus'},
+  {id:'lr12',name:"Klein Law Group",venture:'lr',industry:'Law',city:'Houston',contact:'David Klein',phone:'713-960-8700',reviews:22,gap:28,posts:0,responseRate:20,urgency:'high',quote:'Family law. No Posts. No Q&A. Easy improvements.',msg:'Hey David — Family law, 22 reviews, no Posts, no Q&A. Easy improvements that bring in clients. Free audit?\n\n— Marcus'},
+  {id:'lr13',name:"Pure Smiles Dentistry",venture:'lr',industry:'Dentist',city:'Houston',contact:'Dr. Patel',phone:'713-526-2000',reviews:12,gap:28,posts:0,responseRate:15,urgency:'high',quote:'12 reviews vs 40+ competitors. Missing service list.',msg:'Hey Dr. Patel — 12 reviews while competitors have 40+. Missing service categories too. Free audit — 2 minutes.\n\n— Marcus'},
+  {id:'lr14',name:"Memorial Dental",venture:'lr',industry:'Dentist',city:'Houston',contact:'Dr. Chen',phone:'713-555-0105',reviews:60,gap:0,posts:0,responseRate:30,urgency:'medium',quote:'Better profile. Missing categories and Q&A.',msg:'Hey Dr. Chen — Memorial area. Solid reviews but missing service categories and Q&A. Quick audit?\n\n— Marcus'},
+  {id:'lr15',name:"Kingwood Legal",venture:'lr',industry:'Law',city:'Kingwood',contact:'Managing Partner',phone:'281-312-0000',reviews:8,gap:32,posts:0,responseRate:5,urgency:'high',quote:'Only 8 reviews. No Posts. Needs full strategy.',msg:'Hey — 8 reviews vs 40+ for competitors. Google is your first impression for legal. Free audit shows the gap.\n\n— Marcus'},
+  {id:'lr16',name:"Woodlands Legal",venture:'lr',industry:'Law',city:'The Woodlands',contact:'Managing Partner',phone:'936-321-0000',reviews:15,gap:25,posts:0,responseRate:10,urgency:'high',quote:'Good location, underutilized GBP.',msg:'Hey — Woodlands location is prime but GBP is underutilized. Missing attributes, low reviews. Free audit?\n\n— Marcus'},
+  {id:'lr17',name:"Oasis Landscape",venture:'lr',industry:'Landscaper',city:'Houston',contact:'Owner',phone:'713-555-0100',reviews:7,gap:18,posts:0,responseRate:10,urgency:'high',quote:'No Posts. Low reviews. Service area not set.',msg:'Hey — 7 reviews, no Posts, no service area set. Landscaping is visual — your GBP should show it. Free audit?\n\n— Marcus'},
+  {id:'lr18',name:"District 1 Realty",venture:'lr',industry:'Real Estate',city:'Houston',contact:'District 1 Team',phone:'832-510-7100',reviews:22,gap:28,posts:0,responseRate:20,urgency:'high',quote:'22 reviews vs 50+. Missing categories.',msg:'Hey District 1 team — 22 reviews vs competitors at 50+. People compare agents by reviews. Free audit?\n\n— Marcus'},
+  {id:'lr19',name:"Greenwood King Properties",venture:'lr',industry:'Real Estate',city:'Houston',contact:'Anne King',phone:'713-522-1800',reviews:35,gap:15,posts:0,responseRate:30,urgency:'medium',quote:'Upscale. Missing categories.',msg:'Hey Anne — Greenwood King has incredible listings. GBP is missing categories. Free audit?\n\n— Marcus'},
+  {id:'lr20',name:"Perez Realty Group",venture:'lr',industry:'Real Estate',city:'Houston',contact:'Alicia Perez',phone:'713-869-6000',reviews:18,gap:22,posts:0,responseRate:15,urgency:'high',quote:'Independent. Needs review volume.',msg:'Hey Alicia — 18 reviews vs 40+ for top agents. Independent agents need reviews to compete. Free audit?\n\n— Marcus'},
+  {id:'lr21',name:"Living Waters Chiro",venture:'lr',industry:'Chiropractor',city:'Houston',contact:'Dr. Williams',phone:'713-555-0101',reviews:8,gap:12,posts:0,responseRate:10,urgency:'high',quote:'No Posts. Low reviews. Service missing.',msg:'Hey Dr. Williams — 8 reviews, no Posts. Chiro is a trust business — your GBP isn\'t building trust. Free audit?\n\n— Marcus'},
+  {id:'lr22',name:"Elite Family Chiro",venture:'lr',industry:'Chiropractor',city:'Houston',contact:'Dr. Mitchell',phone:'713-555-0103',reviews:15,gap:5,posts:0,responseRate:20,urgency:'medium',quote:'No recent Posts. Low review volume.',msg:'Hey Dr. Mitchell — No recent Posts, low review volume. Quick audit — free, no strings.\n\n— Marcus'},
+  {id:'lr23',name:"Hicks Plumbing",venture:'lr',industry:'Plumber',city:'Houston',contact:'Owner',phone:'713-555-0102',reviews:28,gap:22,posts:0,responseRate:15,urgency:'high',quote:'Emergency service category missing. Huge gap.',msg:'Hey — Plumbing business needs emergency service category on GBP. Missing it means lost calls. Free audit?\n\n— Marcus'},
+  {id:'lr24',name:"Elite Roofing",venture:'lr',industry:'Roofer',city:'Houston',contact:'Owner',phone:'713-555-0104',reviews:35,gap:15,posts:0,responseRate:20,urgency:'high',quote:'Missing service area. No Posts this year.',msg:'Hey — 35 reviews but no Posts this year and missing service area. Roofing season is here. Free audit?\n\n— Marcus'},
+  {id:'lr25',name:"Houston Massage Co.",venture:'lr',industry:'Massage',city:'Houston',contact:'Owner',phone:'713-555-0106',reviews:10,gap:20,posts:0,responseRate:10,urgency:'high',quote:'No Posts. Attributes incomplete.',msg:'Hey — 10 reviews vs 30+ for competitors. No Posts, incomplete attributes. Free audit in 2 minutes?\n\n— Marcus'},
+
+  // === AAA (15 top) ===
+  {id:'aaa1',name:'Keller Williams Memorial',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Mike Sullivan',phone:'713-461-1313',reviews:47,gap:42,posts:4,responseRate:60,urgency:'high',quote:'Big team. 47 reviews vs 89 for top competitors. 42 missed leads/mo.',msg:'Hey Mike — your team is big but your lead response isn\'t automated. Competitors with auto-text close 30% more. Want to see how?\n\n— Rex'},
+  {id:'aaa2',name:'Martha Turner Sotheby\'s',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Martha Turner',phone:'713-520-1987',reviews:89,gap:0,posts:4,responseRate:70,urgency:'medium',quote:'Premium market. Already strong but leaving money on table.',msg:'Hey Martha — strong profile, but even a 10% lift in lead conversion = serious revenue. Our system delivers 30-50%. Demo?\n\n— Rex'},
+  {id:'aaa3',name:'Compass Houston',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'John Mathews',phone:'713-555-0101',reviews:60,gap:29,posts:2,responseRate:40,urgency:'high',quote:'Corporate brokerage. Slow response times. Big gap.',msg:'Hey John — Compass is a corporate brokerage but your lead response might not match your brand. 60-second auto-text. Demo?\n\n— Rex'},
+  {id:'aaa4',name:'Cressy & Everett Real Estate',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Mark Cressy',phone:'713-520-2000',reviews:35,gap:54,posts:1,responseRate:30,urgency:'high',quote:'Upscale Montrose. 35 reviews vs 89 for Sotheby\'s. Huge gap.',msg:'Hey Mark — upscale Montrose agent but 35 reviews vs 89 for competitors. Review gap costs you 50+ leads/mo. Free audit?\n\n— Rex'},
+  {id:'aaa5',name:'Brick & Vine Realty',venture:'aaa',industry:'Real Estate',city:'Sugar Land',contact:'Kimberly Scott',phone:'281-313-3000',reviews:28,gap:61,posts:0,responseRate:20,urgency:'high',quote:'Suburban market. 28 reviews. No automated follow-up.',msg:'Hey Kimberly — 28 reviews vs 80+ for top agents in your area. Our system generates reviews on autopilot. Demo?\n\n— Rex'},
+  {id:'aaa6',name:'Pin Oak Realty',venture:'aaa',industry:'Real Estate',city:'Katy',contact:'Tommy Evans',phone:'281-398-1112',reviews:22,gap:67,posts:0,responseRate:15,urgency:'high',quote:'Katy market growing fast. 22 reviews. Needs system.',msg:'Hey Tommy — Katy is booming but your profile isn\'t keeping up. 22 reviews vs 60+ for top Katy agents. Free audit?\n\n— Rex'},
+  {id:'aaa7',name:'Kingwood Real Estate Group',venture:'aaa',industry:'Real Estate',city:'Kingwood',contact:'John Adams',phone:'281-360-5000',reviews:18,gap:71,posts:0,responseRate:10,urgency:'high',quote:'18 reviews. CRITICAL gap. Needs review volume urgently.',msg:'Hey John — 18 reviews while competitors push 60+. Every review gap = lost clients. We fixed this for another agent in 30 days. Free audit?\n\n— Rex'},
+  {id:'aaa8',name:'Woodlands Premier Homes',venture:'aaa',industry:'Real Estate',city:'The Woodlands',contact:'Susan Park',phone:'936-321-2222',reviews:40,gap:49,posts:1,responseRate:30,urgency:'high',quote:'Strong market position but review gap hurting.',msg:'Hey Susan — strong in The Woodlands but review gap vs competitors is costing you. Our review gen system. Demo?\n\n— Rex'},
+  {id:'aaa9',name:'Magnolia Realty Houston',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Chris Walker',phone:'713-802-2500',reviews:30,gap:59,posts:0,responseRate:20,urgency:'high',quote:'Heights area. 30 reviews. Needs automation.',msg:'Hey Chris — Heights agent with 30 reviews vs 80+ for top area agents. Lead response automation could close that gap. Demo?\n\n— Rex'},
+  {id:'aaa10',name:'Bay Colony Realty',venture:'aaa',industry:'Real Estate',city:'League City',contact:'Jennifer Lee',phone:'281-332-3000',reviews:15,gap:74,posts:0,responseRate:10,urgency:'high',quote:'Suburban growth. 15 reviews — needs everything.',msg:'Hey Jennifer — 15 reviews vs 60+ in League City. Full system needed: reviews, follow-up, lead gen. Free audit?\n\n— Rex'},
+  {id:'aaa11',name:'Urban Nest Real Estate',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Ryan Martinez',phone:'713-655-2000',reviews:25,gap:64,posts:0,responseRate:25,urgency:'high',quote:'Downtown niche. 25 reviews. Big opportunity.',msg:'Hey Ryan — downtown niche is underserved. 25 reviews but competitors at 70+. Our system can close that. Demo?\n\n— Rex'},
+  {id:'aaa12',name:'Apex Realty Advisors',venture:'aaa',industry:'Real Estate',city:'The Woodlands',contact:'Daniel White',phone:'936-321-4000',reviews:50,gap:39,posts:2,responseRate:40,urgency:'medium',quote:'Decent base. Needs system to get to 100+.',msg:'Hey Daniel — 50 reviews is decent but 100+ is where top agents live. Review automation can get you there. Demo?\n\n— Rex'},
+  {id:'aaa13',name:'eXp Realty Houston',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Jennifer Lee',phone:'713-555-0116',reviews:35,gap:54,posts:1,responseRate:35,urgency:'high',quote:'Virtual-first. Needs tech-forward solutions.',msg:'Hey Jennifer — eXp is tech-forward but your review/lead game isn\'t. We\'re the automation layer you\'re missing. Demo?\n\n— Rex'},
+  {id:'aaa14',name:'Keller Williams Katy',venture:'aaa',industry:'Real Estate',city:'Katy',contact:'Mike Johnson',phone:'281-398-0119',reviews:30,gap:59,posts:1,responseRate:25,urgency:'high',quote:'Katy market. Franchise with local gaps.',msg:'Hey Mike — KW Katy has the brand but local reviews are at 30 vs 80+ for independents in your area. Fix that?\n\n— Rex'},
+  {id:'aaa15',name:'Keller Williams Uptown',venture:'aaa',industry:'Real Estate',city:'Houston',contact:'Tom Davis',phone:'713-555-0117',reviews:12,gap:77,posts:0,responseRate:5,urgency:'high',quote:'12 reviews. CRITICAL. Uptown market needs attention.',msg:'Hey Tom — 12 reviews for an Uptown agent is leaving serious money on the table. Top agents there have 80+. Let\'s fix it.\n\n— Rex'}
+];
+
+// Scoring engine
+function scoreProspect(p) {
+  let score = 50; // base
+  const factors = [];
+  
+  // Review gap (bigger = more urgent = higher score)
+  const reviewWeight = Math.min(25, p.gap * 0.3);
+  score += reviewWeight;
+  if (p.gap > 50) factors.push('💰 Huge review gap (+' + reviewWeight.toFixed(0) + ')');
+  else if (p.gap > 25) factors.push('📊 Significant review gap (+' + reviewWeight.toFixed(0) + ')');
+  else if (p.gap > 10) factors.push('📈 Moderate review gap (+' + reviewWeight.toFixed(0) + ')');
+  
+  // Low response rate = easy improvement = higher score
+  if (p.responseRate < 20) {
+    score += 10;
+    factors.push('⚡ Low response rate (+10) — easy win');
+  } else if (p.responseRate < 50) {
+    score += 5;
+    factors.push('✅ Room to improve response rate (+5)');
+  }
+  
+  // No posts = high urgency
+  if (p.posts === 0) {
+    score += 8;
+    factors.push('📝 No Google Posts (+8) — quick fix');
+  }
+  
+  // Venture bonus (AAA has higher retainer potential)
+  if (p.venture === 'aaa') {
+    score += 5;
+    factors.push('🤖 AAA venture (+5) — higher retainer potential');
+  }
+  
+  // Urgency tag
+  if (p.urgency === 'high') {
+    score += 5;
+    factors.push('🔥 High urgency signal (+5)');
+  }
+  
+  // Cap at 100
+  score = Math.min(100, Math.round(score));
+  
+  let level = 'low', levelLabel = '💤 Cold';
+  if (score >= 75) { level = 'high'; levelLabel = '🔥 Hot'; }
+  else if (score >= 55) { level = 'medium'; levelLabel = '⚡ Warm'; }
+  
+  return { score, level, levelLabel, factors };
+}
+
+// Apply scoring
+function scoreAll() {
+  PROSPECTS.forEach(p => {
+    Object.assign(p, scoreProspect(p));
+  });
+  PROSPECTS.sort((a, b) => b.score - a.score);
+}
+scoreAll();
+
+// State
+let selectedProspect = null;
+
+// Render
+function render() {
+  const q = (document.getElementById('search').value || '').toLowerCase();
+  const vf = document.getElementById('venture-filter').value;
+  const pf = document.getElementById('priority-filter').value;
+  const ind = document.getElementById('industry-filter').value;
+  
+  // Populate industry filter
+  const industries = [...new Set(PROSPECTS.map(p => p.industry))].sort();
+  const indSel = document.getElementById('industry-filter');
+  industries.forEach(i => {
+    if (![...indSel.options].some(o => o.value === i)) {
+      const o = document.createElement('option'); o.value = i; o.textContent = i;
+      indSel.appendChild(o);
+    }
+  });
+  
+  // Filter
+  const filtered = PROSPECTS.filter(p => {
+    const m = p.name.toLowerCase().includes(q) || p.contact.toLowerCase().includes(q) || p.city.toLowerCase().includes(q);
+    const v = vf === 'all' || p.venture === vf;
+    const pr = pf === 'all' || p.level === pf;
+    const i = ind === 'all' || p.industry === ind;
+    return m && v && pr && i;
+  });
+  
+  // Summary
+  const high = filtered.filter(p => p.level === 'high').length;
+  const med = filtered.filter(p => p.level === 'medium').length;
+  const low = filtered.filter(p => p.level === 'low').length;
+  document.getElementById('summary').innerHTML = `
+    <div class="stat-card"><div class="num" style="color:var(--red)">${high}</div><div class="label">🔥 Hot</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--orange)">${med}</div><div class="label">⚡ Warm</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--green)">${low}</div><div class="label">💤 Cold</div></div>
+    <div class="stat-card"><div class="num">${filtered.length}</div><div class="label">Total Shown</div></div>
+  `;
+  document.getElementById('count-display').textContent = `${filtered.length} of ${PROSPECTS.length} prospects`;
+  
+  // Grid
+  const grid = document.getElementById('grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty">No prospects match your filters</div>';
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(p => `
+    <div class="card" onclick="openModal('${p.id}')">
+      <div class="top">
+        <div class="name">${p.name}</div>
+        <div class="venture ${p.venture}">${p.venture === 'lr' ? 'LR' : 'AAA'}</div>
+      </div>
+      <div class="meta">${p.industry} · ${p.city} · ${p.contact}</div>
+      <div class="score-bar"><div class="score-fill ${p.level}" style="width:${p.score}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;">
+        <span style="font-weight:600;">${p.levelLabel}</span>
+        <span style="color:var(--text2);">${p.score}/100 · ${p.reviews} reviews · ${p.gap} gap</span>
+      </div>
+      <div class="meta" style="margin-top:4px;font-size:11px;color:var(--text2);">${p.quote}</div>
+      <div class="actions">
+        <button onclick="event.stopPropagation();copyDirect('${p.msg.replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">📋 Copy DM</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filter() { render(); }
+
+function openModal(id) {
+  const p = PROSPECTS.find(x => x.id === id);
+  if (!p) return;
+  selectedProspect = p;
+  document.getElementById('modal-name').textContent = p.name;
+  document.getElementById('modal-venture').textContent = (p.venture === 'lr' ? 'Local Reach' : 'Rex AAA');
+  document.getElementById('modal-score').innerHTML = `<div class="score-bar" style="max-width:300px;"><div class="score-fill ${p.level}" style="width:${p.score}%;height:8px;"></div></div><span style="font-size:16px;font-weight:700;">${p.score}/100 — ${p.levelLabel}</span>`;
+  document.getElementById('modal-why').innerHTML = p.factors.map(f => '<div>• ' + f + '</div>').join('');
+  document.getElementById('modal-contact').innerHTML = `<strong>${p.contact}</strong> · ${p.phone} · ${p.city}<br>${p.industry} · ${p.reviews} reviews · ${p.gap} review gap`;
+  document.getElementById('modal-msg').textContent = p.msg;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); selectedProspect = null; }
+
+function copyMsg() {
+  if (!selectedProspect) return;
+  const text = selectedProspect.msg;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.modal-actions .btn-primary');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Message', 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  });
+}
+
+function copyDirect(text) {
+  navigator.clipboard.writeText(text.replace(/\\n/g, '\n')).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy DM', 2000);
+  });
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
