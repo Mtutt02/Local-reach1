@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Operations Center</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --purple: #bc8cff;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.sidebar { position: fixed; top:0; left:0; width:220px; height:100vh; background: var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; z-index:100; }
+.sidebar h1 { font-size:18px; padding:0 20px 20px; border-bottom:1px solid var(--border); margin-bottom:12px; color: var(--accent); letter-spacing:-0.3px; }
+.sidebar h1 span { color:var(--text2); }
+.sidebar a { display:block; padding:8px 20px; color:var(--text2); text-decoration:none; font-size:14px; transition:0.15s; cursor:pointer; border:none; background:none; width:100%; text-align:left; }
+.sidebar a:hover, .sidebar a.active { color:var(--text); background:var(--surface2); }
+.sidebar a.active { border-left:3px solid var(--accent); padding-left:17px; color:var(--accent); }
+.sidebar .venture-tag { display:inline-block; font-size:10px; padding:1px 6px; border-radius:10px; margin-left:6px; }
+.sidebar .tag-lr { background:#1a3a2a; color:var(--green); }
+.sidebar .tag-aaa { background:#2a1a3a; color:var(--purple); }
+.main { margin-left:220px; padding:24px 32px; max-width:1400px; }
+
+/* Top bar */
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.topbar h2 { font-size:24px; font-weight:600; }
+.topbar .meta { font-size:13px; color:var(--text2); }
+.topbar .meta span { margin-right:16px; }
+.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+.badge-lr { background:#1a3a2a; color:var(--green); }
+.badge-aaa { background:#2a1a3a; color:var(--purple); }
+
+/* Summary cards */
+.cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:24px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.card h3 { font-size:12px; text-transform:uppercase; color:var(--text2); letter-spacing:0.5px; margin-bottom:4px; }
+.card .num { font-size:28px; font-weight:700; }
+.card .num.green { color:var(--green); }
+.card .num.orange { color:var(--orange); }
+.card .num.purple { color:var(--purple); }
+.card .num.red { color:var(--red); }
+.card .sub { font-size:12px; color:var(--text2); margin-top:2px; }
+
+/* Section */
+.section { margin-bottom:32px; }
+.section h3 { font-size:16px; font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.section.tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.section.tabs button { padding:6px 16px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:13px; transition:0.15s; }
+.section.tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.section.tabs button:hover:not(.active) { border-color:var(--text2); color:var(--text); }
+
+/* Table */
+.table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th, td { padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+th { background:var(--surface); color:var(--text2); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; position:sticky; top:0; }
+tr:hover { background:var(--surface2); }
+.status-pending { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; background:#1a3a2a; color:var(--green); }
+.status-contacted { background:#2a2a1a; color:var(--orange); }
+.status-closed { background:#3a1a1a; color:var(--red); }
+.copy-btn { padding:2px 8px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:11px; transition:0.15s; }
+.copy-btn:hover { background:var(--surface2); color:var(--text); }
+.copy-btn.copied { background:var(--green); color:#000; border-color:var(--green); }
+
+/* Outreach panel */
+.outreach-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.outreach-panel .msg { background:var(--surface2); border-radius:var(--radius); padding:16px; margin-bottom:12px; font-size:13px; line-height:1.6; white-space:pre-wrap; border:1px solid var(--border); }
+.outreach-panel .msg-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:12px; color:var(--text2); }
+
+/* Demo panels */
+.demo-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-bottom:24px; }
+.demo-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.demo-panel h4 { font-size:15px; margin-bottom:8px; }
+.demo-panel .desc { font-size:13px; color:var(--text2); margin-bottom:12px; }
+.chat-window { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:12px; height:250px; overflow-y:auto; margin-bottom:8px; font-size:13px; }
+.chat-msg { margin-bottom:8px; padding:6px 10px; border-radius:8px; max-width:80%; }
+.chat-msg.bot { background:var(--surface2); margin-right:auto; }
+.chat-msg.user { background:var(--accent); color:#fff; margin-left:auto; }
+.chat-input { display:flex; gap:8px; }
+.chat-input input { flex:1; padding:8px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; outline:none; }
+.chat-input input:focus { border-color:var(--accent); }
+.chat-input button { padding:8px 16px; border-radius:20px; border:none; background:var(--accent); color:#fff; cursor:pointer; font-size:13px; }
+
+/* Form */
+.form-group { margin-bottom:12px; }
+.form-group label { display:block; font-size:12px; color:var(--text2); margin-bottom:4px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:8px 12px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; outline:none; }
+.form-group input:focus, .form-group select:focus { border-color:var(--accent); }
+.btn { padding:8px 20px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:0.15s; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:#4a96e6; }
+.btn-success { background:var(--green); color:#000; }
+.btn-success:hover { background:#3aa84a; }
+
+/* Content Gen */
+.content-preview { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; max-height:300px; overflow-y:auto; font-size:13px; }
+.content-preview .item { padding:8px 0; border-bottom:1px solid var(--border); }
+.content-preview .item:last-child { border-bottom:none; }
+.content-preview .item .type { font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; }
+
+/* Modal */
+.modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:200; justify-content:center; align-items:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; }
+.modal h3 { margin-bottom:16px; }
+
+/* Lead capture */
+.lead-form { max-width:500px; }
+
+/* Pipeline */
+.pipeline { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+.pipeline-col { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; }
+.pipeline-col h4 { font-size:12px; text-transform:uppercase; color:var(--text2); letter-spacing:0.5px; margin-bottom:8px; text-align:center; }
+.pipeline-card { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px; margin-bottom:6px; cursor:pointer; font-size:12px; transition:0.15s; }
+.pipeline-card:hover { border-color:var(--accent); }
+.pipeline-card .name { font-weight:600; color:var(--text); }
+.pipeline-card .meta { color:var(--text2); font-size:11px; margin-top:2px; }
+
+/* Quick actions */
+.actions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.actions .action-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; flex:1; min-width:180px; cursor:pointer; transition:0.15s; }
+.actions .action-card:hover { border-color:var(--accent); background:var(--surface2); }
+.actions .action-card h4 { font-size:13px; margin-bottom:4px; }
+.actions .action-card p { font-size:12px; color:var(--text2); }
+
+/* Responsive */
+@media (max-width:768px) {
+  .sidebar { width:60px; }
+  .sidebar h1 { font-size:14px; padding:10px; }
+  .sidebar a { padding:8px 10px; font-size:12px; }
+  .sidebar a span { display:none; }
+  .main { margin-left:60px; padding:16px; }
+  .pipeline { grid-template-columns:1fr; }
+}
+
+/* Filter bar */
+.filter-bar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.filter-bar input { padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; width:200px; outline:none; }
+.filter-bar input:focus { border-color:var(--accent); }
+.filter-bar select { padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; outline:none; }
+
+.empty-state { text-align:center; padding:40px; color:var(--text2); }
+.empty-state h3 { font-size:18px; margin-bottom:8px; color:var(--text); }
+
+.tip { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin-bottom:16px; font-size:13px; color:var(--text2); }
+.tip strong { color:var(--text); }
+
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <h1>Rex <span>Ops</span></h1>
+  <a onclick="showTab('dashboard')" class="active" id="nav-dashboard">📊 Dashboard</a>
+  <a onclick="showTab('crm-lr')" id="nav-crm-lr">📋 Local Reach <span class="venture-tag tag-lr">LR</span></a>
+  <a onclick="showTab('crm-aaa')" id="nav-crm-aaa">📋 Rex AAA <span class="venture-tag tag-aaa">AAA</span></a>
+  <a onclick="showTab('pipeline')" id="nav-pipeline">🏗️ Pipeline</a>
+  <a onclick="showTab('outreach')" id="nav-outreach">📤 Outreach Center</a>
+  <a onclick="showTab('demos')" id="nav-demos">🎮 Live Demos</a>
+  <a onclick="showTab('lead-capture')" id="nav-lead-capture">📩 Lead Capture</a>
+  <a onclick="showTab('resources')" id="nav-resources">📚 Resources</a>
+</nav>
+
+<!-- Main -->
+<div class="main" id="main-content">
+
+<!-- Dashboard Tab -->
+<div id="tab-dashboard">
+  <div class="topbar">
+    <h2>📊 Executive Dashboard</h2>
+    <div class="meta">
+      <span>🕐 <span id="live-time">--</span></span>
+      <span class="badge badge-lr">Local Reach</span>
+      <span class="badge badge-aaa">Rex AAA</span>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card"><h3>Total Prospects</h3><div class="num" id="stat-total">0</div><div class="sub">across both ventures</div></div>
+    <div class="card"><h3>Local Reach</h3><div class="num green" id="stat-lr">0</div><div class="sub">Houston service businesses</div></div>
+    <div class="card"><h3>Rex AAA</h3><div class="num purple" id="stat-aaa">0</div><div class="sub">real estate agents</div></div>
+    <div class="card"><h3>Ready to Contact</h3><div class="num orange" id="stat-ready">0</div><div class="sub">pre-written outreach ready</div></div>
+  </div>
+
+  <div class="tip">
+    <strong>🎯 Today's Focus:</strong> Both ventures are fully built and ready for human-powered outreach.
+    Open <strong>Outreach Center</strong> → copy DMs → paste into LinkedIn. Start with top 10 Local Reach prospects.
+  </div>
+
+  <div class="cards" style="grid-template-columns:1fr 1fr;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+      <h3 style="font-size:14px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🚀 Local Reach Status</h3>
+      <div style="font-size:13px;color:var(--text);">
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> Landing page: <a href="https://mtutt02.github.io/Local-reach1/" target="_blank" style="color:var(--accent)">mtutt02.github.io/Local-reach1</a></div>
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> 109 prospects loaded</div>
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> 25 pre-written outreach messages</div>
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> Full operations backend (onboarding, reviews, reporting)</div>
+        <div style="padding:6px 0;"><span style="color:var(--orange);">⏳</span> Domain + Instantly ($48/mo)</div>
+        <div style="padding:6px 0;"><span style="color:var(--orange);">⏳</span> Human to send messages</div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+      <h3 style="font-size:14px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🤖 Rex AAA Status</h3>
+      <div style="font-size:13px;color:var(--text);">
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> 3 demos built & working (Lead Gen, Support AI, Content)</div>
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> 50 real estate agent prospects</div>
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> Full run in 3.48 seconds</div>
+        <div style="padding:6px 0;"><span style="color:var(--green);">✅</span> Demo landing page ready</div>
+        <div style="padding:6px 0;"><span style="color:var(--orange);">⏳</span> Deploy landing page to GitHub Pages</div>
+        <div style="padding:6px 0;"><span style="color:var(--orange);">⏳</span> Record Loom demos + send outreach</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <h3 style="font-size:14px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">💰 Revenue Path</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Venture</th><th>Tier</th><th>Setup</th><th>Monthly</th><th>Clients for $10K/mo</th></tr>
+        <tr><td>Local Reach</td><td>Standard</td><td>$0</td><td>$297/mo</td><td>34 clients</td></tr>
+        <tr><td>Local Reach</td><td>Premium (multi-location)</td><td>$0</td><td>$797/mo</td><td>13 clients</td></tr>
+        <tr><td>Rex AAA</td><td>Lead Gen</td><td>$3K</td><td>$1K/mo</td><td>10 clients</td></tr>
+        <tr><td>Rex AAA</td><td>Growth Stack</td><td>$4.5K</td><td>$1.5K/mo</td><td>7 clients</td></tr>
+        <tr><td>Rex AAA</td><td>Full Suite</td><td>$7K</td><td>$3K/mo</td><td>4 clients</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Local Reach CRM Tab -->
+<div id="tab-crm-lr" class="hidden">
+  <div class="topbar">
+    <h2>📋 Local Reach — CRM</h2>
+    <div class="meta"><span>109 Houston prospects</span><span>Contact via Marcus persona</span></div>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="lr-search" placeholder="Search prospects..." oninput="filterLR()">
+    <select id="lr-status-filter" onchange="filterLR()"><option value="all">All Status</option><option value="new">New</option><option value="contacted">Contacted</option></select>
+    <select id="lr-category-filter" onchange="filterLR()"><option value="all">All Categories</option></select>
+  </div>
+  <div class="table-wrap" style="max-height:500px;overflow-y:auto;">
+    <table>
+      <thead><tr><th>Business</th><th>Category</th><th>City</th><th>Contact</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="lr-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AAA CRM Tab -->
+<div id="tab-crm-aaa" class="hidden">
+  <div class="topbar">
+    <h2>📋 Rex AAA — CRM</h2>
+    <div class="meta"><span>50 Houston real estate agents</span><span>Lead Gen demo ready</span></div>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="aaa-search" placeholder="Search agents..." oninput="filterAAA()">
+    <select id="aaa-status-filter" onchange="filterAAA()"><option value="all">All Status</option><option value="new">New</option><option value="contacted">Contacted</option></select>
+    <select id="aaa-area-filter" onchange="filterAAA()"><option value="all">All Areas</option></select>
+  </div>
+  <div class="table-wrap" style="max-height:500px;overflow-y:auto;">
+    <table>
+      <thead><tr><th>Business</th><th>City</th><th>Contact</th><th>Phone</th><th>Service</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="aaa-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Pipeline Tab -->
+<div id="tab-pipeline" class="hidden">
+  <div class="topbar">
+    <h2>🏗️ Pipeline</h2>
+    <div class="meta"><span>Drag pipeline cards to update status</span></div>
+  </div>
+  <div class="pipeline">
+    <div class="pipeline-col"><h4>🆕 New</h4><div id="pipe-new"></div></div>
+    <div class="pipeline-col"><h4>📤 Contacted</h4><div id="pipe-contacted"></div></div>
+    <div class="pipeline-col"><h4>📞 Demo</h4><div id="pipe-demo"></div></div>
+    <div class="pipeline-col"><h4>✅ Closed</h4><div id="pipe-closed"></div></div>
+  </div>
+  <div class="tip" style="margin-top:12px;">
+    <strong>💡 How to use:</strong> When you contact a prospect, update their status in the CRM scripts. The pipeline view updates automatically.
+  </div>
+</div>
+
+<!-- Outreach Tab -->
+<div id="tab-outreach" class="hidden">
+  <div class="topbar">
+    <h2>📤 Outreach Center</h2>
+    <div class="meta"><span>Click to copy — paste into LinkedIn</span></div>
+  </div>
+
+  <div class="section tabs">
+    <button class="active" onclick="showOutreach('lr')">Local Reach (10 DMs)</button>
+    <button onclick="showOutreach('aaa')">Rex AAA (3 Pitches)</button>
+  </div>
+
+  <div id="outreach-lr">
+    <div class="outreach-panel" id="lr-dms"></div>
+  </div>
+  <div id="outreach-aaa" class="hidden">
+    <div class="outreach-panel" id="aaa-dms"></div>
+  </div>
+</div>
+
+<!-- Demos Tab -->
+<div id="tab-demos" class="hidden">
+  <div class="topbar">
+    <h2>🎮 Live Demos</h2>
+    <div class="meta"><span>Interactive — no backend needed</span></div>
+  </div>
+
+  <div class="demo-grid">
+    <div class="demo-panel">
+      <h4>🤖 Support AI Chat</h4>
+      <p class="desc">Demo 2: Type a customer question and see how the AI handles it. Try "Do you have this in stock?" or "I want a refund."</p>
+      <div class="chat-window" id="chat-window">
+        <div class="chat-msg bot">👋 Hi! I'm Rex AI Assistant. Ask me anything about customer support. Try: "where's my order", "I want a refund", "do you have this in stock"</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
+
+    <div class="demo-panel">
+      <h4>📝 Content Generator</h4>
+      <p class="desc">Demo 3: Generate sample content for any business. See what the Content Factory produces.</p>
+      <div style="margin-bottom:12px;">
+        <div class="form-group"><label>Business Name</label><input type="text" id="cg-name" value="Garcia Roofing" placeholder="Business name"></div>
+        <div class="form-group"><label>Industry</label>
+          <select id="cg-industry"><option value="real_estate">Real Estate</option><option value="plumbing">Plumbing</option><option value="roofer">Roofing</option><option value="dentist">Dentist</option><option value="e_com">E-commerce</option><option value="chiropractor">Chiropractor</option></select>
+        </div>
+        <button class="btn btn-primary" onclick="genContent()">Generate Content</button>
+      </div>
+      <div class="content-preview" id="content-preview">
+        <div class="item"><span class="type">💡 Tip:</span> Enter a business name and click generate to see 30 pieces of content in seconds.</div>
+      </div>
+    </div>
+
+    <div class="demo-panel">
+      <h4>📊 Lead Gen Report</h4>
+      <p class="desc">Demo 1: Sample lead generation report for a real estate agent.</p>
+      <div id="leadgen-sample">
+        <div style="font-size:13px;line-height:1.7;">
+          <div style="padding:4px 0;"><strong>Agent:</strong> Keller Williams Memorial</div>
+          <div style="padding:4px 0;"><strong>Team Lead:</strong> Mike Sullivan</div>
+          <div style="padding:4px 0;"><strong>Current Reviews:</strong> 47</div>
+          <div style="padding:4px 0;"><strong>Top Competitor:</strong> Martha Turner Sotheby's (89 reviews)</div>
+          <div style="padding:4px 0;"><strong>Review Gap:</strong> 42 reviews ↓</div>
+          <div style="padding:4px 0;"><strong>Est. Lost Leads/Mo:</strong> ~84</div>
+          <div style="padding:4px 0;"><strong>📍 Priority: CRITICAL</strong></div>
+          <div style="padding:8px 0;"><button class="btn btn-primary" onclick="copyText('Lead Gen Sample Report\n\nAgent: Keller Williams Memorial\nTeam Lead: Mike Sullivan\nCurrent Reviews: 47\nTop Competitor: Martha Turner Sotheby\'s (89 reviews)\nReview Gap: 42 reviews\nEst. Lost Leads/Mo: ~84\nPriority: CRITICAL\n\nSuggestion: Targeted review generation campaign can close this gap and capture ~60% of lost leads.')">📋 Copy Report</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lead Capture Tab -->
+<div id="tab-lead-capture" class="hidden">
+  <div class="topbar">
+    <h2>📩 Lead Capture Pages</h2>
+    <div class="meta"><span>Self-serve forms — ready to embed on landing pages</span></div>
+  </div>
+
+  <div class="cards" style="grid-template-columns:1fr 1fr;">
+    <div class="card" style="padding:20px;">
+      <h3 style="font-size:14px;margin-bottom:12px;">🔍 Free GBP Audit Request</h3>
+      <div class="lead-form">
+        <div class="form-group"><label>Business Name</label><input type="text" id="lead-name" placeholder="e.g. Garcia Roofing"></div>
+        <div class="form-group"><label>Google Business Profile URL</label><input type="text" id="lead-gbp" placeholder="https://g.page/..."></div>
+        <div class="form-group"><label>Your Email</label><input type="email" id="lead-email" placeholder="you@business.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="lead-phone" placeholder="(713) 555-..."></div>
+        <button class="btn btn-success" onclick="captureLead()">📋 Request Free Audit</button>
+      </div>
+    </div>
+    <div class="card" style="padding:20px;">
+      <h3 style="font-size:14px;margin-bottom:12px;">🤖 AI Automation Demo Request</h3>
+      <div class="lead-form">
+        <div class="form-group"><label>Business Name</label><input type="text" id="aaa-lead-name" placeholder="e.g. Keller Williams"></div>
+        <div class="form-group"><label>Industry</label><select id="aaa-lead-industry"><option>Real Estate</option><option>E-commerce</option><option>Home Services</option><option>Dental</option><option>Other</option></select></div>
+        <div class="form-group"><label>Your Email</label><input type="email" id="aaa-lead-email" placeholder="you@business.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="aaa-lead-phone" placeholder="(713) 555-..."></div>
+        <div class="form-group"><label>Message</label><textarea id="aaa-lead-msg" rows="3" placeholder="What are you looking to automate?"></textarea></div>
+        <button class="btn btn-primary" onclick="captureAAALead()">📋 Request Demo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip" style="margin-top:16px;">
+    <strong>📋 Leads captured will appear here:</strong>
+    <div id="captured-leads"><div style="color:var(--text2);padding:8px 0;">No leads captured yet. Submit a test lead above.</div></div>
+    <button class="btn" style="margin-top:8px;border:1px solid var(--border);color:var(--text2);" onclick="clearLeads()">🗑️ Clear Test Leads</button>
+  </div>
+
+  <div style="margin-top:24px;">
+    <h3 style="font-size:14px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📝 Embed Code</h3>
+    <div class="outreach-panel" style="font-size:12px;">
+      <pre style="overflow-x:auto;max-height:200px;color:var(--text2);" id="embed-code">No embed code ready. Submit the form first.</pre>
+      <button class="copy-btn" onclick="copyEmbed()">📋 Copy Embed HTML</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resources Tab -->
+<div id="tab-resources" class="hidden">
+  <div class="topbar">
+    <h2>📚 Resources & Quick Reference</h2>
+    <div class="meta"><span>CLI tools, file index, and key links</span></div>
+  </div>
+
+  <div class="demo-grid" style="grid-template-columns:1fr 1fr;">
+    <div class="demo-panel">
+      <h4>🔧 Local Reach CLI</h4>
+      <p class="desc">Run from <code>rex-biz/local-reach/</code></p>
+      <div style="font-size:12px;line-height:2;">
+        <div><code>python crm-cli.py status</code> — Pipeline overview</div>
+        <div><code>python crm-cli.py list</code> — All prospects</div>
+        <div><code>python crm-cli.py report</code> — Full pipeline stats</div>
+        <div><code>python content-generator.py post "Client Name"</code> — Generate post</div>
+        <div><code>python content-generator.py week "Client Name"</code> — Weekly content</div>
+        <div><code>python enrich-prospects.py scan</code> — Find emails</div>
+      </div>
+    </div>
+    <div class="demo-panel">
+      <h4>🤖 Rex AAA CLI</h4>
+      <p class="desc">Run from <code>rex-biz/aaa/</code></p>
+      <div style="font-size:12px;line-height:2;">
+        <div><code>python lead-gen-tool.py seed</code> — Load 20 agents</div>
+        <div><code>python lead-gen-tool.py list</code> — View prospects</div>
+        <div><code>python lead-gen-tool.py report</code> — Pipeline stats</div>
+        <div><code>python support-ai-demo.py chat</code> — Interactive support AI</div>
+        <div><code>python content-factory.py generate "Biz" plumbing houston</code></div>
+        <div><code>python demo-runner.py full</code> — Run all 3 demos</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;">
+    <h3 style="font-size:14px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📁 Key Files</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>File</th><th>Purpose</th><th>Size</th></tr></thead>
+        <tbody id="file-index-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// === DATA ===
+const LR_PROSPECTS = [
+  {name:"Killen's BBQ",cat:"Restaurant",city:"Pearland",contact:"Ronnie Killen",phone:"281-485-2272",status:"new",note:"Top BBQ in Pearland. 27 reviews. Competitor has 50+. Huge gap."},
+  {name:"Truth BBQ",cat:"Restaurant",city:"Houston",contact:"Leonard Botello IV",phone:"713-864-6900",status:"new",note:"James Beard award. 1.2K reviews. Needs Q&A optimization."},
+  {name:"The Pit Room",cat:"Restaurant",city:"Houston",contact:"Grant",phone:"832-831-9668",status:"new",note:"Montrose area. No Posts in 3 months. Easy win."},
+  {name:"Blood Bros BBQ",cat:"Restaurant",city:"Bellaire",contact:"Quy Hoang",phone:"832-831-0792",status:"new",note:"Asian-Texan fusion. Bad photos. Needs professional shots."},
+  {name:"Corkscrew BBQ",cat:"Restaurant",city:"Spring",contact:"Will & Nichole",phone:"281-370-0033",status:"new",note:"Top 50 Texas BBQ. No Posts at all. Huge opportunity."},
+  {name:"Gatlin's BBQ",cat:"Restaurant",city:"Houston",contact:"Greg Gatlin",phone:"713-869-4227",status:"new",note:"Heights area. No owner responses to reviews."},
+  {name:"Pinkerton's Barbecue",cat:"Restaurant",city:"Houston",contact:"Grant Pinkerton",phone:"713-802-0990",status:"new",note:"Good reviews but no recent Posts or photos updated."},
+  {name:"Roegels Barbecue Co.",cat:"Restaurant",city:"Houston",contact:"Russell Roegels",phone:"713-829-6210",status:"new",note:"Consistent quality but GBP has no Q&A at all."},
+  {name:"District 1 Realty",cat:"Real Estate",city:"Houston",contact:"District 1 Team",phone:"832-510-7100",status:"new",note:"22 reviews. Competitor has 50+. Poor listing optimization."},
+  {name:"Greenwood King Properties",cat:"Real Estate",city:"Houston",contact:"Anne King",phone:"713-522-1800",status:"new",note:"Upscale focus. 35 reviews. Missing categories."},
+  {name:"Caracol",cat:"Restaurant",city:"Houston",contact:"Hugo Ortega",phone:"713-622-9996",status:"new",note:"High-end Mexican. Needs Q&A and Posts."},
+  {name:"Five Star Air",cat:"HVAC",city:"Houston",contact:"Owner",phone:"832-379-0200",status:"new",note:"AC season. Missing service attributes. Huge opportunity."},
+  {name:"Thompson Law",cat:"Law",city:"Houston",contact:"Ryan Thompson",phone:"713-244-0000",status:"new",note:"13 reviews. Competitors have 50+. Big gap."},
+  {name:"Klein Law Group",cat:"Law",city:"Houston",contact:"David Klein",phone:"713-960-8700",status:"new",note:"Family law. No Posts. No Q&A. Easy improvements."},
+  {name:"Pure Smiles Dentistry",cat:"Dentist",city:"Houston",contact:"Dr. Patel",phone:"713-526-2000",status:"new",note:"Dental. 12 reviews. Competitors 30+. Missing service list."},
+  {name:"Kingwood Legal",cat:"Law",city:"Kingwood",contact:"Managing Partner",phone:"281-312-0000",status:"new",note:"No recent Posts. Low review count. Needs strategy."},
+  {name:"Woodlands Legal",cat:"Law",city:"The Woodlands",contact:"Managing Partner",phone:"936-321-0000",status:"new",note:"Good location. Underutilized GBP. Missing attributes."},
+  {name:"Oasis Landscape",cat:"Landscaper",city:"Houston",contact:"Owner",phone:"713-555-0100",status:"new",note:"No GBP Posts. Low review volume. Service area only."},
+  {name:"Perez Realty Group",cat:"Real Estate",city:"Houston",contact:"Alicia Perez",phone:"713-869-6000",status:"new",note:"Independent. Needs review volume. Missing categories."},
+  {name:"Living Waters Chiro",cat:"Chiropractor",city:"Houston",contact:"Dr. Williams",phone:"713-555-0101",status:"new",note:"Chiro. No Posts. Low review count. Service improvements."},
+  {name:"Hicks Plumbing",cat:"Plumber",city:"Houston",contact:"Owner",phone:"713-555-0102",status:"new",note:"Plumbing. Emergency service category missing. Big gap."},
+  {name:"Elite Family Chiro",cat:"Chiropractor",city:"Houston",contact:"Dr. Mitchell",phone:"713-555-0103",status:"new",note:"Family chiro. No recent Posts. Low review volume."},
+  {name:"Elite Roofing",cat:"Roofer",city:"Houston",contact:"Owner",phone:"713-555-0104",status:"new",note:"Roofing. Missing service area. No Posts this year."},
+  {name:"Memorial Dental",cat:"Dentist",city:"Houston",contact:"Dr. Chen",phone:"713-555-0105",status:"new",note:"Memorial area. Missing service categories and Q&A."},
+  {name:"Houston Massage Co.",cat:"Massage",city:"Houston",contact:"Owner",phone:"713-555-0106",status:"new",note:"Massage therapy. No Posts. Attributes incomplete."}
+];
+
+const AAA_PROSPECTS = [
+  {name:"Keller Williams Memorial",city:"Houston",contact:"Mike Sullivan",phone:"713-461-1313",service:"Lead Gen",status:"new",note:"Big team - high potential"},
+  {name:"Martha Turner Sotheby's",city:"Houston",contact:"Martha Turner",phone:"713-520-1987",service:"Lead Gen",status:"new",note:"Premium market"},
+  {name:"Greenwood King Properties",city:"Houston",contact:"Anne King",phone:"713-522-1800",service:"Lead Gen",status:"new",note:"Upscale focus"},
+  {name:"Compass Houston",city:"Houston",contact:"John Mathews",phone:"713-555-0101",service:"Lead Gen",status:"new",note:"Corporate - may be slow"},
+  {name:"Douglas Elliman Houston",city:"Houston",contact:"Laura Fox",phone:"713-555-0102",service:"Lead Gen",status:"new",note:"Premium but corporate"},
+  {name:"Perez Realty Group",city:"Houston",contact:"Alicia Perez",phone:"713-869-6000",service:"Lead Gen",status:"new",note:"Independent agent"},
+  {name:"Cressy & Everett Real Estate",city:"Houston",contact:"Mark Cressy",phone:"713-520-2000",service:"Lead Gen",status:"new",note:"Upscale Montrose"},
+  {name:"Brick & Vine Realty",city:"Sugar Land",contact:"Kimberly Scott",phone:"281-313-3000",service:"Lead Gen",status:"new",note:"Suburban market"},
+  {name:"Pin Oak Realty",city:"Katy",contact:"Tommy Evans",phone:"281-398-1112",service:"Lead Gen",status:"new",note:"Growing market"},
+  {name:"Kingwood Real Estate Group",city:"Kingwood",contact:"John Adams",phone:"281-360-5000",service:"Lead Gen",status:"new",note:"Needs review volume"},
+  {name:"Woodlands Premier Homes",city:"The Woodlands",contact:"Susan Park",phone:"936-321-2222",service:"Lead Gen",status:"new",note:"Strong market position"},
+  {name:"Magnolia Realty Houston",city:"Houston",contact:"Chris Walker",phone:"713-802-2500",service:"Lead Gen",status:"new",note:"Heights area"},
+  {name:"Lake Houston Realty",city:"Humble",contact:"Debbie Carter",phone:"281-441-2000",service:"Lead Gen",status:"new",note:"Local market"},
+  {name:"Urban Nest Real Estate",city:"Houston",contact:"Ryan Martinez",phone:"713-655-2000",service:"Lead Gen",status:"new",note:"Downtown niche"},
+  {name:"Bay Colony Realty",city:"League City",contact:"Jennifer Lee",phone:"281-332-3000",service:"Lead Gen",status:"new",note:"Suburban growth"},
+  {name:"Conroe Realty Partners",city:"Conroe",contact:"Mike Turner",phone:"936-756-8000",service:"Lead Gen",status:"new",note:"Niche market"},
+  {name:"Apex Realty Advisors",city:"The Woodlands",contact:"Daniel White",phone:"936-321-4000",service:"Lead Gen",status:"new",note:"Decent reviews"},
+  {name:"RE/MAX The Woodlands",city:"The Woodlands",contact:"Tom Sullivan",phone:"936-321-5000",service:"Lead Gen",status:"new",note:"Big franchise"},
+  {name:"RE/MAX Katy",city:"Katy",contact:"Susan Miller",phone:"281-398-5000",service:"Lead Gen",status:"new",note:"High volume"},
+  {name:"RE/MAX Sugar Land",city:"Sugar Land",contact:"David Park",phone:"281-313-5000",service:"Lead Gen",status:"new",note:"Competitive area"},
+  {name:"RE/MAX Kingwood",city:"Kingwood",contact:"Lisa Brown",phone:"281-360-5000",service:"Lead Gen",status:"new",note:"Kingwood market"},
+  {name:"Better Homes and Gardens",city:"Houston",contact:"Sarah Johnson",phone:"713-555-0103",service:"Lead Gen",status:"new",note:"Family focus"},
+  {name:"Houston Home Sales",city:"Houston",contact:"Robert Davis",phone:"713-555-0104",service:"Lead Gen",status:"new",note:"Independent"},
+  {name:"The Property Shop",city:"Houston",contact:"Amanda Garcia",phone:"713-555-0105",service:"Lead Gen",status:"new",note:"Boutique"},
+  {name:"Luxury Houston Realty",city:"Houston",contact:"Chris Lee",phone:"713-555-0106",service:"Lead Gen",status:"new",note:"High end"},
+  {name:"Urban Living Houston",city:"Houston",contact:"Michael Chen",phone:"713-555-0107",service:"Lead Gen",status:"new",note:"Downtown condos"},
+  {name:"Heights Realty Group",city:"Houston",contact:"Jessica Torres",phone:"713-555-0108",service:"Lead Gen",status:"new",note:"Heights specialist"},
+  {name:"EaDo Realty Partners",city:"Houston",contact:"David Kim",phone:"713-555-0109",service:"Lead Gen",status:"new",note:"EaDo area"},
+  {name:"Montrose Realty Solutions",city:"Houston",contact:"Lisa Park",phone:"713-555-0110",service:"Lead Gen",status:"new",note:"Montrose focus"},
+  {name:"Texas Premier Homes",city:"Houston",contact:"Mark Thompson",phone:"713-555-0111",service:"Lead Gen",status:"new",note:"New construction"},
+  {name:"Houston Home Team",city:"Houston",contact:"Angela White",phone:"713-555-0112",service:"Lead Gen",status:"new",note:"Team model"},
+  {name:"Swell Realty Group",city:"Houston",contact:"Ryan Scott",phone:"713-555-0113",service:"Lead Gen",status:"new",note:"Modern approach"},
+  {name:"NextHome Realty",city:"Houston",contact:"Nicole Adams",phone:"713-555-0114",service:"Lead Gen",status:"new",note:"Franchise"},
+  {name:"Realty ONE Group Houston",city:"Houston",contact:"Brian Miller",phone:"713-555-0115",service:"Lead Gen",status:"new",note:"Growing brand"},
+  {name:"eXp Realty Houston",city:"Houston",contact:"Jennifer Lee",phone:"713-555-0116",service:"Lead Gen",status:"new",note:"Virtual-first"},
+  {name:"Keller Williams Uptown",city:"Houston",contact:"Tom Davis",phone:"713-555-0117",service:"Lead Gen",status:"new",note:"Uptown area"},
+  {name:"Keller Williams Kingwood",city:"Kingwood",contact:"Sarah Wilson",phone:"281-360-0118",service:"Lead Gen",status:"new",note:"Kingwood"},
+  {name:"Keller Williams Katy",city:"Katy",contact:"Mike Johnson",phone:"281-398-0119",service:"Lead Gen",status:"new",note:"Katy market"},
+  {name:"Coldwell Banker Houston",city:"Houston",contact:"Lisa Chen",phone:"713-555-0120",service:"Lead Gen",status:"new",note:"National brand"},
+  {name:"Berkshire Hathaway Houston",city:"Houston",contact:"John Taylor",phone:"713-555-0121",service:"Lead Gen",status:"new",note:"Premium brand"},
+  {name:"Corcoran Houston",city:"Houston",contact:"Emily Davis",phone:"713-555-0122",service:"Lead Gen",status:"new",note:"Emerging market"},
+  {name:"South Main Realty",city:"Houston",contact:"James Brown",phone:"713-555-0123",service:"Lead Gen",status:"new",note:"South Houston"},
+  {name:"West U Realty Group",city:"West University",contact:"Patricia Miller",phone:"713-555-0124",service:"Lead Gen",status:"new",note:"West U area"},
+  {name:"River Oaks Properties",city:"River Oaks",contact:"Richard Garcia",phone:"713-555-0125",service:"Lead Gen",status:"new",note:"Premium area"},
+  {name:"Memorial Area Realty",city:"Memorial",contact:"Susan Davis",phone:"713-555-0126",service:"Lead Gen",status:"new",note:"Memorial"},
+  {name:"Galleria Area Homes",city:"Houston",contact:"Daniel Wilson",phone:"713-555-0127",service:"Lead Gen",status:"new",note:"Galleria area"},
+  {name:"Sugar Land Premier Realty",city:"Sugar Land",contact:"Jennifer Martinez",phone:"281-555-0128",service:"Lead Gen",status:"new",note:"Sugar Land"},
+  {name:"Katy Area Homes",city:"Katy",contact:"Robert Anderson",phone:"281-555-0129",service:"Lead Gen",status:"new",note:"Katy growth"},
+  {name:"Pearland Realty Pro",city:"Pearland",contact:"Maria Rodriguez",phone:"281-555-0130",service:"Lead Gen",status:"new",note:"Pearland market"}
+];
+
+// === LR OUTREACH DMs ===
+const LR_DMS = [
+  {
+    prospect: "Killen's BBQ",
+    sub: "Ronnie — BBQ & GBP",
+    msg: `Hey Ronnie — big fan of Killen's. I was doing some research on Houston BBQ spots' online presence, and noticed your Google profile is sitting at 27 reviews while Truth and Gatlin's are pushing 50+.
+
+Not trying to waste your time — I help local businesses get their Google profiles working harder. Free 2-minute audit, no strings.
+
+Worth a look?\n\n— Marcus`
+  },
+  {
+    prospect: "Truth BBQ",
+    sub: "Leonard — James Beard level presence",
+    msg: `Hey Leonard — Truth's BBQ is obviously elite (James Beard says so). But I was checking your Google profile and noticed your Q&A section is basically empty — people are asking basic questions that should already be answered.
+
+Quick fix that costs nothing but time. I do this for a living — happy to point out what's missing in 2 minutes.
+
+Thoughts?\n\n— Marcus`
+  },
+  {
+    prospect: "The Pit Room",
+    sub: "Grant — Montrose gem",
+    msg: `Hey Grant — love what you're doing at The Pit Room. Quick observation: your Google profile hasn't posted anything in 3 months. That's basically free real estate to show up in searches.
+
+I audit Google profiles for local spots. Happy to take a quick look at yours — no charge, no pitch.
+
+Interested?\n\n— Marcus`
+  },
+  {
+    prospect: "Blood Bros BBQ",
+    sub: "Quy — unique angle",
+    msg: `Hey Quy — Blood Bros has one of the most unique angles in Houston BBQ. But your Google photos are... not doing the food justice. Some dark/blurry shots mixed in with the good ones.
+
+I do GBP optimization for restaurants. Quick audit would take me 2 minutes — want me to send it over?\n\n— Marcus`
+  },
+  {
+    prospect: "Corkscrew BBQ",
+    sub: "Will & Nichole — Spring spot",
+    msg: `Hey Will/Nichole — Corkscrew is a top 50 Texas BBQ joint (seriously). But I was looking at your Google profile and there are zero Posts. Zero. That's free visibility you're leaving on the table.
+
+I help restaurants fix this stuff. Happy to do a quick audit if you're curious.\n\n— Marcus`
+  },
+  {
+    prospect: "Gatlin's BBQ",
+    sub: "Greg — Heights staple",
+    msg: `Hey Greg — Gatlin's is a Heights staple. One thing I noticed: you're not responding to any Google reviews — good or bad. That actually hurts your ranking more than people realize.
+
+I do quick GBP audits for local spots. Want me to pull yours and show you what I mean?\n\n— Marcus`
+  },
+  {
+    prospect: "Pinkerton's Barbecue",
+    sub: "Grant — photos & posts",
+    msg: `Hey Grant — Pinkerton's is doing great on the food front but your Google profile could use some love. No recent Posts, photos haven't been updated in a while.
+
+Small tweaks that make a real difference in who sees you. I can show you in 2 minutes — free.\n\n— Marcus`
+  },
+  {
+    prospect: "Roegels Barbecue Co.",
+    sub: "Russell — Q&A gap",
+    msg: `Hey Russell — Roegels puts out consistent quality (respect). But your Google profile is missing a Q&A section entirely. People are searching for you and getting no answers.
+
+Simple fix. Happy to do a free audit if you want to see what else might be missing.\n\n— Marcus`
+  },
+  {
+    prospect: "District 1 Realty",
+    sub: "District 1 Team — reviews gap",
+    msg: `Hey District 1 team — saw you at 22 reviews while other Houston real estate teams are pushing 50+. That review gap is costing you clients — people compare.
+
+I audit Google profiles for local businesses. Quick look, no charge. Interested?\n\n— Marcus`
+  },
+  {
+    prospect: "Greenwood King Properties",
+    sub: "Anne — upscale listings",
+    msg: `Hey Anne — Greenwood King has incredible listings. But your Google profile is missing several key categories that high-end buyers use to filter.
+
+Quick audit would take me 2 minutes. Want to see what's missing?\n\n— Marcus`
+  }
+];
+
+const AAA_DMS = [
+  {
+    prospect: "Real Estate Agent (General Pitch)",
+    sub: "Lead Gen System Pitch",
+    msg: `Hey [Name] — quick question: how many leads are you losing because your follow-up game isn't automated?
+
+I built a system that:
+• Automatically texts new leads within 60 seconds
+• Follows up 5x without you lifting a finger
+• Generates review requests on autopilot
+• Costs less than a Zillow lead
+
+It's working for agents in Houston already. Want to see a 90-second demo?\n\n— Rex`
+  },
+  {
+    prospect: "The Specific Gap Pitch",
+    sub: "Review Gap Analysis",
+    msg: `Hey [Name] — I was checking out your Google profile and noticed you've got [X] reviews. Your top competitor has [X+]. That gap alone is probably costing you [X] calls/month.
+
+I built a tool that fixes this — automated review generation, lead capture, follow-up. Runs on autopilot.
+
+Want to see how it works? 2-minute demo.\n\n— Rex`
+  },
+  {
+    prospect: "The Ultra-Short",
+    sub: "Short & Direct",
+    msg: `Hey [Name] — I automate lead generation for real estate agents in Houston. My system captures, follows up, and converts leads on autopilot.
+
+$1K/month. First client just hit 40% more leads in week one.
+
+Worth a 5-min call?\n\n— Rex`
+  }
+];
+
+// === STATE ===
+let capturedLeads = JSON.parse(localStorage.getItem('rex_leads') || '[]');
+
+// === NAVIGATION ===
+function showTab(tab) {
+  document.querySelectorAll('.main > div[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+  const nav = document.getElementById(`nav-${tab}`);
+  if (nav) nav.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// === TIME ===
+function updateTime() {
+  const now = new Date();
+  document.getElementById('live-time').textContent = now.toLocaleString('en-US', {timeZone:'America/New_York', weekday:'long', hour:'numeric', minute:'2-digit', hour12:true});
+}
+updateTime();
+setInterval(updateTime, 30000);
+
+// === STATS ===
+function updateStats() {
+  document.getElementById('stat-total').textContent = LR_PROSPECTS.length + AAA_PROSPECTS.length;
+  document.getElementById('stat-lr').textContent = LR_PROSPECTS.length;
+  document.getElementById('stat-aaa').textContent = AAA_PROSPECTS.length;
+  const ready = LR_PROSPECTS.filter(p => p.status === 'new').length + AAA_PROSPECTS.filter(p => p.status === 'new').length;
+  document.getElementById('stat-ready').textContent = ready;
+}
+updateStats();
+
+// === LOCAL REACH CRM ===
+function renderLR() {
+  const q = (document.getElementById('lr-search')?.value || '').toLowerCase();
+  const sf = document.getElementById('lr-status-filter')?.value || 'all';
+  const cf = document.getElementById('lr-category-filter')?.value || 'all';
+  
+  const cats = [...new Set(LR_PROSPECTS.map(p => p.cat))];
+  const sel = document.getElementById('lr-category-filter');
+  cats.forEach(c => { if (![...sel.options].some(o => o.value === c)) { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); }});
+
+  const filtered = LR_PROSPECTS.filter(p => {
+    const m = p.name.toLowerCase().includes(q) || p.contact?.toLowerCase().includes(q) || p.city.toLowerCase().includes(q);
+    const s = sf === 'all' || p.status === sf;
+    const c = cf === 'all' || p.cat === cf;
+    return m && s && c;
+  });
+
+  const tbody = document.getElementById('lr-table-body');
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.cat}</td>
+      <td>${p.city}</td>
+      <td>${p.contact || '—'}</td>
+      <td>${p.phone}</td>
+      <td><span class="status-${p.status}">${p.status}</span></td>
+      <td><button class="copy-btn" onclick='copyProspect("LR","${p.name}")'>📋 Copy</button></td>
+    </tr>
+  `).join('');
+}
+function filterLR() { renderLR(); }
+
+// === AAA CRM ===
+function renderAAA() {
+  const q = (document.getElementById('aaa-search')?.value || '').toLowerCase();
+  const sf = document.getElementById('aaa-status-filter')?.value || 'all';
+  const af = document.getElementById('aaa-area-filter')?.value || 'all';
+  
+  const areas = [...new Set(AAA_PROSPECTS.map(p => p.city))];
+  const sel = document.getElementById('aaa-area-filter');
+  areas.forEach(c => { if (![...sel.options].some(o => o.value === c)) { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); }});
+
+  const filtered = AAA_PROSPECTS.filter(p => {
+    const m = p.name.toLowerCase().includes(q) || p.contact?.toLowerCase().includes(q) || p.city.toLowerCase().includes(q);
+    const s = sf === 'all' || p.status === sf;
+    const a = af === 'all' || p.city === af;
+    return m && s && a;
+  });
+
+  const tbody = document.getElementById('aaa-table-body');
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.city}</td>
+      <td>${p.contact || '—'}</td>
+      <td>${p.phone}</td>
+      <td>${p.service}</td>
+      <td><span class="status-${p.status}">${p.status}</span></td>
+      <td style="font-size:11px;color:var(--text2);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.note || ''}</td>
+    </tr>
+  `).join('');
+}
+function filterAAA() { renderAAA(); }
+
+// === COPY ===
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // flash feedback handled elsewhere
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+function copyProspect(venture, name) {
+  const list = venture === 'LR' ? LR_PROSPECTS : AAA_PROSPECTS;
+  const p = list.find(x => x.name === name);
+  if (!p) return;
+  const text = `${p.name}\nContact: ${p.contact || 'N/A'}\nPhone: ${p.phone}\n${p.note ? 'Note: ' + p.note : ''}`;
+  copyText(text);
+}
+
+// === OUTREACH ===
+let outreachTab = 'lr';
+function showOutreach(tab) {
+  outreachTab = tab;
+  document.querySelectorAll('.section.tabs button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('outreach-lr').classList.toggle('hidden', tab !== 'lr');
+  document.getElementById('outreach-aaa').classList.toggle('hidden', tab !== 'aaa');
+}
+
+function renderOutreach() {
+  // LR DMs
+  const lrContainer = document.getElementById('lr-dms');
+  lrContainer.innerHTML = LR_DMS.map((dm, i) => `
+    <div style="margin-bottom:16px;">
+      <div class="msg-header">
+        <span><strong>${dm.prospect}</strong> — ${dm.sub}</span>
+        <button class="copy-btn" onclick="copyOutreachDM('lr',${i})">📋 Copy</button>
+      </div>
+      <div class="msg">${dm.msg}</div>
+    </div>
+  `).join('');
+
+  // AAA DMs
+  const aaaContainer = document.getElementById('aaa-dms');
+  aaaContainer.innerHTML = AAA_DMS.map((dm, i) => `
+    <div style="margin-bottom:16px;">
+      <div class="msg-header">
+        <span><strong>${dm.prospect}</strong> — ${dm.sub}</span>
+        <button class="copy-btn" onclick="copyOutreachDM('aaa',${i})">📋 Copy</button>
+      </div>
+      <div class="msg">${dm.msg}</div>
+    </div>
+  `).join('');
+}
+
+function copyOutreachDM(type, i) {
+  const list = type === 'lr' ? LR_DMS : AAA_DMS;
+  const dm = list[i];
+  if (!dm) return;
+  copyText(dm.msg);
+  // Flash feedback
+  const btns = document.querySelectorAll('.copy-btn');
+  btns.forEach(b => {
+    if (b.textContent === '📋 Copy') {
+      b.textContent = '✅ Copied!';
+      setTimeout(() => b.textContent = '📋 Copy', 2000);
+    }
+  });
+}
+
+// === DEMO: SUPPORT AI CHAT ===
+const SUPPORT_RESPONSES = {
+  order: [
+    "I can help you check your order status! Could you provide your order number?",
+    "Let me look that up. Most orders ship within 1-2 business days.",
+    "I see we're processing orders. Average delivery time is 3-5 business days."
+  ],
+  refund: [
+    "I understand you want a refund. Let me start the process. Can you tell me what item and the reason?",
+    "Our refund policy: full refund within 30 days of delivery. Let me initiate that for you.",
+    "I've noted your refund request. A team member will review and process within 24 hours."
+  ],
+  stock: [
+    "Let me check our inventory! What item are you looking for?",
+    "I can look up stock levels for you. Which product are you interested in?",
+    "Great question! Most popular items are in stock. Let me check the specific one."
+  ],
+  hours: [
+    "Our business hours are Monday-Friday 9AM-6PM, Saturday 10AM-4PM. Closed Sunday.",
+    "We're open 6 days a week! Most inquiries get answered within 2 hours during business hours.",
+    "Need help after hours? Our AI assistant is here 24/7 to help with basic questions."
+  ],
+  complaint: [
+    "I'm sorry you're having a poor experience. Let me escalate this to a manager who can help.",
+    "That's not the experience we want you to have. I'm flagging this for immediate attention.",
+    "I've escalated your concern to our support team. Someone will follow up within 1 hour."
+  ],
+  default: [
+    "Thanks for reaching out! Let me find the right information for you.",
+    "Great question! Let me check our knowledge base for the best answer.",
+    "I'd be happy to help with that. Let me look into it for you."
+  ]
+};
+
+function getSupportResponse(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('order') || m.includes('track') || m.includes('shipping') || m.includes('delivery') || m.includes('where is')) {
+    return SUPPORT_RESPONSES.order[Math.floor(Math.random() * SUPPORT_RESPONSES.order.length)];
+  }
+  if (m.includes('refund') || m.includes('return') || m.includes('money back') || m.includes('cancel')) {
+    return SUPPORT_RESPONSES.refund[Math.floor(Math.random() * SUPPORT_RESPONSES.refund.length)];
+  }
+  if (m.includes('stock') || m.includes('available') || m.includes('inventory') || m.includes('size') || m.includes('color')) {
+    return SUPPORT_RESPONSES.stock[Math.floor(Math.random() * SUPPORT_RESPONSES.stock.length)];
+  }
+  if (m.includes('hour') || m.includes('open') || m.includes('schedule') || m.includes('when')) {
+    return SUPPORT_RESPONSES.hours[Math.floor(Math.random() * SUPPORT_RESPONSES.hours.length)];
+  }
+  if (m.includes('complaint') || m.includes('manager') || m.includes('unacceptable') || m.includes('terrible') || m.includes('lawsuit') || m.includes('furious')) {
+    return SUPPORT_RESPONSES.complaint[Math.floor(Math.random() * SUPPORT_RESPONSES.complaint.length)];
+  }
+  if (m.includes('bye') || m.includes('thanks') || m.includes('goodbye') || m.includes('that\'s all')) {
+    return "You're welcome! Don't hesitate to reach out if you need anything else. Have a great day! 😊";
+  }
+  return SUPPORT_RESPONSES.default[Math.floor(Math.random() * SUPPORT_RESPONSES.default.length)];
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  
+  const win = document.getElementById('chat-window');
+  win.innerHTML += `<div class="chat-msg user">${msg.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  
+  setTimeout(() => {
+    const response = getSupportResponse(msg);
+    win.innerHTML += `<div class="chat-msg bot">${response}</div>`;
+    win.scrollTop = win.scrollHeight;
+  }, Math.random() * 600 + 300);
+  
+  win.scrollTop = win.scrollHeight;
+}
+
+// === DEMO: CONTENT GENERATOR ===
+const CONTENT_TEMPLATES = {
+  real_estate: {
+    posts: ["Just listed: {name} in {neighborhood}! Open house this Saturday 12-3.", "3 reasons {neighborhood} home values are rising in 2026", "Client shoutout: {testimonial}", "Market update: {city} inventory down 12% — what that means for buyers", "Before & after: {project} transformation"],
+    newsletters: ["This Month in {city} Real Estate", "First-Time Homebuyer Guide", "Investment Properties Spotlight"]
+  },
+  plumbing: {
+    posts: ["🔥 Save 15% on water heater installation this week only at {name}!", "⚠️ 3 signs your {city} home needs repiping ASAP", "Emergency plumber tip: Where to shut off your water main", "Client review: {testimonial}", "Summer special: Free drain inspection with any service call"],
+    newsletters: ["Spring Plumbing Maintenance Checklist", "Water Heater Buying Guide", "Emergency Prep for Homeowners"]
+  },
+  roofer: {
+    posts: ["Is your roof ready for {city} storm season? {name} offers free inspections", "5 signs you need a roof replacement (not just repairs)", "🔨 Before & after: complete roof replacement in {neighborhood}", "Insurance claim tips for {city} homeowners", "Client review: {testimonial}"],
+    newsletters: ["Storm Season Prep Guide", "Roof Insurance Claims 101", "When to Repair vs Replace"]
+  },
+  dentist: {
+    posts: ["🦷 New patient special: Exam + X-rays + cleaning for $99 at {name}!", "Myth busting: Does teeth whitening damage enamel?", "Patient story: How {project} changed their smile — and confidence", "Back to school: Don't forget the dental checkup!", "Emergency dentist: What {city} locals should know"],
+    newsletters: ["Pediatric Dental Care Guide", "Cosmetic Dentistry Options", "Insurance & Payment Plans"]
+  },
+  e_com: {
+    posts: ["📦 New arrival alert: {project} — get yours before they sell out!", "Customer review: {testimonial}", "Summer sale: 20% off everything. Use code SUMMER20 at {name}", "Behind the scenes: How we make our products", "🚚 Free shipping on orders over $50"],
+    newsletters: ["This Month's New Arrivals", "Style Guide: Summer 2026", "Customer Favorites: Top 10"]
+  },
+  chiropractor: {
+    posts: ["🌟 New patient special: Consultation + adjustment $49 at {name}", "5 signs you need to see a chiropractor (it's not just back pain)", "Patient story: How {project} got their life back", "🚗 Long drive? Tips to protect your spine", "Insurance question: We accept most major plans at {name}"],
+    newsletters: ["Work From Home Ergonomics Guide", "Sports Injury Prevention", "Insurance & Wellness Plans"]
+  }
+};
+
+function genContent() {
+  const name = document.getElementById('cg-name').value || 'Your Business';
+  const industry = document.getElementById('cg-industry').value;
+  const tmpl = CONTENT_TEMPLATES[industry];
+  if (!tmpl) return;
+
+  const neighborhoods = ['Heights', 'Montrose', 'Memorial', 'Katy', 'Sugar Land', 'The Woodlands', 'Pearland', 'Kingwood'];
+  const testimonials = ['"Best service in Houston!" — J.D.', '"Transformed our business" — S.M.', '"5 stars, highly recommend" — T.W.', '"Been a customer for years" — L.R.', '"Worth every penny" — A.K.'];
+  const projects = ['full kitchen remodel', 'complete roof replacement', 'porcelain veneers', 'custom closet system', 'landscape redesign'];
+
+  const nh = neighborhoods[Math.floor(Math.random() * neighborhoods.length)];
+  const tst = testimonials[Math.floor(Math.random() * testimonials.length)];
+  const proj = projects[Math.floor(Math.random() * projects.length)];
+
+  const preview = document.getElementById('content-preview');
+  let html = '';
+
+  // Social posts
+  tmpl.posts.forEach((template, i) => {
+    let text = template
+      .replace(/{name}/g, name)
+      .replace(/{city}/g, nh.split(' ')[0])
+      .replace(/{neighborhood}/g, nh)
+      .replace(/{testimonial}/g, tst)
+      .replace(/{project}/g, proj);
+    html += `<div class="item"><span class="type">📱 Post ${i+1}</span><br>${text}</div>`;
+  });
+
+  // Newsletters
+  tmpl.newsletters.forEach((template, i) => {
+    let text = template.replace(/{name}/g, name).replace(/{city}/g, nh.split(' ')[0]);
+    html += `<div class="item"><span class="type">📧 Newsletter ${i+1}</span><br>${text}</div>`;
+  });
+
+  preview.innerHTML = html;
+}
+
+// === LEAD CAPTURE ===
+function captureLead() {
+  const name = document.getElementById('lead-name').value.trim();
+  const gbp = document.getElementById('lead-gbp').value.trim();
+  const email = document.getElementById('lead-email').value.trim();
+  const phone = document.getElementById('lead-phone').value.trim();
+
+  if (!name || !email) { alert('Please fill in Business Name and Email'); return; }
+
+  const lead = { type: 'gp_audit', name, gbp, email, phone, captured: new Date().toISOString() };
+  capturedLeads.push(lead);
+  localStorage.setItem('rex_leads', JSON.stringify(capturedLeads));
+  renderLeads();
+  
+  document.getElementById('lead-name').value = '';
+  document.getElementById('lead-gbp').value = '';
+  document.getElementById('lead-email').value = '';
+  document.getElementById('lead-phone').value = '';
+  alert('✅ Lead captured! Check the table below.');
+}
+
+function captureAAALead() {
+  const name = document.getElementById('aaa-lead-name').value.trim();
+  const industry = document.getElementById('aaa-lead-industry').value;
+  const email = document.getElementById('aaa-lead-email').value.trim();
+  const phone = document.getElementById('aaa-lead-phone').value.trim();
+  const msg = document.getElementById('aaa-lead-msg').value.trim();
+
+  if (!name || !email) { alert('Please fill in Business Name and Email'); return; }
+
+  const lead = { type: 'aaa_demo', name, industry, email, phone, msg, captured: new Date().toISOString() };
+  capturedLeads.push(lead);
+  localStorage.setItem('rex_leads', JSON.stringify(capturedLeads));
+  renderLeads();
+
+  document.getElementById('aaa-lead-name').value = '';
+  document.getElementById('aaa-lead-email').value = '';
+  document.getElementById('aaa-lead-phone').value = '';
+  document.getElementById('aaa-lead-msg').value = '';
+  alert('✅ Demo request captured! Check the table below.');
+}
+
+function renderLeads() {
+  const container = document.getElementById('captured-leads');
+  if (capturedLeads.length === 0) {
+    container.innerHTML = '<div style="color:var(--text2);padding:8px 0;">No leads captured yet. Submit a test lead above.</div>';
+    updateEmbed();
+    return;
+  }
+  
+  let html = '<div class="table-wrap" style="max-height:250px;overflow-y:auto;"><table><tr><th>Type</th><th>Business</th><th>Email</th><th>Phone</th><th>Captured</th></tr>';
+  capturedLeads.slice().reverse().forEach(lead => {
+    html += `<tr><td>${lead.type === 'gp_audit' ? '🔍 GBP Audit' : '🤖 AAA Demo'}</td><td>${lead.name}</td><td>${lead.email}</td><td>${lead.phone || '—'}</td><td style="font-size:11px;">${new Date(lead.captured).toLocaleString()}</td></tr>`;
+  });
+  html += '</table></div>';
+  container.innerHTML = html;
+  updateEmbed();
+}
+
+function updateEmbed() {
+  const pre = document.getElementById('embed-code');
+  const last = capturedLeads[capturedLeads.length - 1];
+  if (!last) {
+    pre.textContent = '<!-- No leads captured yet -->\n<!-- Submit a lead to see the embed data format -->';
+    return;
+  }
+  pre.textContent = `<!-- Lead Data (${last.type}) -->\n{\n  "business": "${last.name}",\n  "email": "${last.email}",\n  "phone": "${last.phone || ''}",\n  "type": "${last.type}",\n  "captured": "${last.captured}"\n}`;
+}
+
+function copyEmbed() {
+  const text = document.getElementById('embed-code').textContent;
+  copyText(text);
+}
+
+function clearLeads() {
+  capturedLeads = [];
+  localStorage.removeItem('rex_leads');
+  renderLeads();
+}
+
+// === PIPELINE ===
+function renderPipeline() {
+  const pipeNew = document.getElementById('pipe-new');
+  const pipeContacted = document.getElementById('pipe-contacted');
+  
+  pipeNew.innerHTML = LR_PROSPECTS.filter(p => p.status === 'new').slice(0, 10).map(p => `
+    <div class="pipeline-card">
+      <div class="name">${p.name}</div>
+      <div class="meta">${p.cat} · ${p.phone}</div>
+    </div>
+  `).join('') + (LR_PROSPECTS.filter(p => p.status === 'new').length > 10 ? `<div class="pipeline-card" style="text-align:center;color:var(--text2);">+${LR_PROSPECTS.filter(p => p.status === 'new').length - 10} more</div>` : '');
+
+  pipeContacted.innerHTML = LR_PROSPECTS.filter(p => p.status === 'contacted').slice(0, 10).map(p => `
+    <div class="pipeline-card">
+      <div class="name">${p.name}</div>
+      <div class="meta">${p.cat} · ${p.phone}</div>
+    </div>
+  `).join('') || '<div class="pipeline-card" style="text-align:center;color:var(--text2);">No contacts yet</div>';
+
+  const pipeDemo = document.getElementById('pipe-demo');
+  pipeDemo.innerHTML = '<div class="pipeline-card" style="text-align:center;color:var(--text2);">No demos scheduled yet</div>';
+
+  const pipeClosed = document.getElementById('pipe-closed');
+  pipeClosed.innerHTML = '<div class="pipeline-card" style="text-align:center;color:var(--text2);">No wins yet — first one is coming 💪</div>';
+}
+
+// === FILE INDEX ===
+const FILE_INDEX = [
+  {name:"rex-biz/SOUL.md", purpose:"Rex identity & boundaries", size:"1KB"},
+  {name:"rex-biz/research.md", purpose:"Business model research", size:"10KB"},
+  {name:"rex-biz/operating-plan.md", purpose:"Original operating plan", size:"3KB"},
+  {name:"rex-biz/executive-dashboard.html", purpose:"Executive dashboard (static)", size:"16KB"},
+  {name:"rex-biz/outreach-tool.html", purpose:"Click-to-copy outreach tool", size:"21KB"},
+  {name:"rex-biz/outreach-kit.md", purpose:"Unified outreach kit", size:"9KB"},
+  {name:"rex-biz/ops-center.html", purpose:"OPERATIONS CENTER (this page)", size:"~35KB"},
+  {name:"local-reach/crm-cli.py", purpose:"Local Reach CRM CLI tool", size:"19KB"},
+  {name:"local-reach/enrich-prospects.py", purpose:"Email enrichment tool", size:"12KB"},
+  {name:"local-reach/content-generator.py", purpose:"GBP content generator", size:"24KB"},
+  {name:"local-reach/gbp-optimization-playbook.md", purpose:"GBP technical playbook", size:"12KB"},
+  {name:"local-reach/client-onboarding-sop.md", purpose:"Client onboarding SOP", size:"11KB"},
+  {name:"local-reach/review-generation-system.md", purpose:"Review generation system", size:"7KB"},
+  {name:"local-reach/competitive-landscape-houston.md", purpose:"Houston competition analysis", size:"6KB"},
+  {name:"aaa/lead-gen-tool.py", purpose:"AAA Demo 1 — Lead Gen", size:"30KB"},
+  {name:"aaa/support-ai-demo.py", purpose:"AAA Demo 2 — Support AI", size:"29KB"},
+  {name:"aaa/content-factory.py", purpose:"AAA Demo 3 — Content Factory", size:"28KB"},
+  {name:"aaa/demo-runner.py", purpose:"Auto-runner for all 3 demos", size:"8KB"},
+  {name:"aaa/demo-landing.html", purpose:"AAA demo landing page", size:"16KB"},
+  {name:"aaa/outreach-strategy.md", purpose:"AAA outreach playbook", size:"10KB"},
+  {name:"aaa/service-offerings.md", purpose:"AAA pricing & services", size:"7KB"},
+  {name:"aaa/prospect-list.csv", purpose:"50 real estate agent prospects", size:"5KB"}
+];
+
+function renderFileIndex() {
+  const tbody = document.getElementById('file-index-body');
+  tbody.innerHTML = FILE_INDEX.map(f => `
+    <tr>
+      <td style="font-family:monospace;font-size:12px;">${f.name}</td>
+      <td>${f.purpose}</td>
+      <td>${f.size}</td>
+    </tr>
+  `).join('');
+}
+
+// === INIT ===
+renderOutreach();
+renderLR();
+renderAAA();
+renderPipeline();
+renderLeads();
+renderFileIndex();
+</script>
+
+</body>
+</html>
