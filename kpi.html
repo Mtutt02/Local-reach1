@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Business KPI Dashboard</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+.container { max-width:1000px; margin:0 auto; padding:24px 20px; }
+h1 { font-size:24px; margin-bottom:4px; }
+.sub { color:var(--text2); margin-bottom:20px; }
+
+/* Period selector */
+.period { display:flex; gap:4px; margin-bottom:20px; }
+.period button { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:12px; transition:0.15s; }
+.period button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+/* Summary */
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin-bottom:20px; }
+.s-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+.s-card .label { font-size:10px; text-transform:uppercase; color:var(--text2); letter-spacing:0.5px; }
+.s-card .num { font-size:26px; font-weight:700; margin:4px 0; }
+.s-card .note { font-size:11px; color:var(--text2); }
+
+/* Venture cards */
+.venture-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.venture-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.venture-card h3 { font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.venture-card .metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.venture-card .metric { }
+.venture-card .metric .v { font-size:18px; font-weight:700; }
+.venture-card .metric .l { font-size:11px; color:var(--text2); }
+.tag-lr { background:#1a3a2a; color:var(--green); padding:2px 8px; border-radius:6px; font-size:11px; }
+.tag-aaa { background:#2a1a3a; color:var(--purple); padding:2px 8px; border-radius:6px; font-size:11px; }
+
+/* Pipeline pipeline */
+.pipeline-bar { display:flex; height:28px; border-radius:14px; overflow:hidden; margin:12px 0; }
+.pipeline-bar .seg { display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; color:#fff; }
+.pipeline-bar .seg.s1 { background:var(--text2); }
+.pipeline-bar .seg.s2 { background:var(--orange); }
+.pipeline-bar .seg.s3 { background:var(--accent); }
+.pipeline-bar .seg.s4 { background:var(--green); }
+
+/* Goal tracking */
+.goal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.goal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+.goal h4 { font-size:13px; margin-bottom:6px; display:flex; justify-content:space-between; }
+.goal .bar { height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+.goal .fill { height:100%; border-radius:3px; transition:width 0.5s; }
+.goal .fill.green { background:var(--green); }
+.goal .fill.orange { background:var(--orange); }
+.goal .fill.purple { background:var(--purple); }
+.goal .fill.red { background:var(--red); }
+.goal .fill.blue { background:var(--accent); }
+
+/* Activity */
+.activity { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:20px; max-height:200px; overflow-y:auto; }
+.activity .item { display:flex; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.activity .item:last-child { border-bottom:none; }
+.activity .time { color:var(--text2); font-size:11px; min-width:60px; }
+.activity .desc { flex:1; }
+
+/* Revenue table */
+.table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th,td { padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+th { background:var(--surface); color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+
+@media (max-width:700px) {
+  .venture-grid, .goal-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📈 Business KPI Dashboard</h1>
+  <p class="sub">Real-time overview of both ventures · Data resets weekly</p>
+
+  <div class="period">
+    <button class="active" onclick="setPeriod('week')">This Week</button>
+    <button onclick="setPeriod('month')">This Month</button>
+    <button onclick="setPeriod('all')">All Time</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary" id="summary"></div>
+
+  <!-- Venture Cards -->
+  <div class="venture-grid">
+    <div class="venture-card">
+      <h3>🏠 Local Reach <span class="tag-lr">LR</span></h3>
+      <div class="metrics" id="lr-metrics"></div>
+      <div class="pipeline-bar" id="lr-pipeline"></div>
+    </div>
+    <div class="venture-card">
+      <h3>🤖 Rex AAA <span class="tag-aaa">AAA</span></h3>
+      <div class="metrics" id="aaa-metrics"></div>
+      <div class="pipeline-bar" id="aaa-pipeline"></div>
+    </div>
+  </div>
+
+  <!-- Goals -->
+  <h2 style="font-size:16px;margin-bottom:12px;">🎯 Revenue Goals</h2>
+  <div class="goal-grid">
+    <div class="goal">
+      <h4>Monthly Recurring Revenue <span>$0</span></h4>
+      <div class="bar"><div class="fill green" style="width:0%"></div></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Target: $10K/mo</div>
+    </div>
+    <div class="goal">
+      <h4>Clients Onboarded <span>0</span></h4>
+      <div class="bar"><div class="fill blue" style="width:0%"></div></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Target: 5 clients</div>
+    </div>
+    <div class="goal">
+      <h4>Outreach Sent <span>0</span></h4>
+      <div class="bar"><div class="fill orange" style="width:0%"></div></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Target: 100 contacts</div>
+    </div>
+    <div class="goal">
+      <h4>Demos Completed <span>0</span></h4>
+      <div class="bar"><div class="fill purple" style="width:0%"></div></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Target: 10 demos</div>
+    </div>
+  </div>
+
+  <!-- Revenue Path -->
+  <h2 style="font-size:16px;margin:20px 0 12px;">💰 Revenue Path to $10K/mo</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Scenario</th><th>Clients</th><th>Avg/Month</th><th>Total MRR</th><th>Timeframe</th></tr>
+      <tr><td>🏠 Local Reach only</td><td>34</td><td>$297</td><td>$10K</td><td>6-9 months</td></tr>
+      <tr><td>🤖 Rex AAA only</td><td>5</td><td>$2K</td><td>$10K</td><td>2-3 months</td></tr>
+      <tr><td>⚡ Blended (LR + AAA)</td><td>10 LR + 3 AAA</td><td>—</td><td>$10K</td><td>3-4 months</td></tr>
+      <tr><td>🔥 Local Reach Premium</td><td>5 multi-location</td><td>$797</td><td>$4K</td><td>1-2 months</td></tr>
+    </table>
+  </div>
+
+  <!-- Activity Log -->
+  <h2 style="font-size:16px;margin-bottom:12px;">📋 Recent Activity</h2>
+  <div class="activity" id="activity-log"></div>
+
+  <!-- Action Items -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+    <h3 style="font-size:14px;margin-bottom:8px;">🎯 Next Actions (Ranked by Impact)</h3>
+    <div style="font-size:13px;line-height:2;">
+      <div style="display:flex;gap:8px;padding:4px 0;"><span style="background:#3a1a1a;color:var(--red);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">P0</span> Send 5 LinkedIn DMs from <code style="color:var(--accent);">score.html</code></div>
+      <div style="display:flex;gap:8px;padding:4px 0;"><span style="background:#3a1a1a;color:var(--red);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">P0</span> Purchase domain + Instantly ($48) to start email sequences</div>
+      <div style="display:flex;gap:8px;padding:4px 0;"><span style="background:#2a2a1a;color:var(--orange);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">P1</span> Record 3-min Loom demo (script in outreach-kit.md)</div>
+      <div style="display:flex;gap:8px;padding:4px 0;"><span style="background:#2a2a1a;color:var(--orange);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">P1</span> Make 5 phone calls (scripts in outreach-scripts.md)</div>
+      <div style="display:flex;gap:8px;padding:4px 0;"><span style="background:#1a2a1a;color:var(--green);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">P2</span> Follow up with audit tool leads (check gbp-audit.html submissions)</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setPeriod(p) {
+  document.querySelectorAll('.period button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderData(p);
+}
+
+function renderData(period) {
+  // Summary stats
+  document.getElementById('summary').innerHTML = `
+    <div class="s-card"><div class="label">Total Prospects</div><div class="num">134</div><div class="note">109 LR + 50 AAA</div></div>
+    <div class="s-card"><div class="label">🔥 Hot Prospects</div><div class="num" style="color:var(--red)">18</div><div class="note">Score 75+ · Ready to contact</div></div>
+    <div class="s-card"><div class="label">Outreach Sent</div><div class="num">0</div><div class="note">Waiting on human to send</div></div>
+    <div class="s-card"><div class="label">Demos Booked</div><div class="num">0</div><div class="note">First demo = first close</div></div>
+    <div class="s-card"><div class="label">Clients Won</div><div class="num" style="color:var(--green)">0</div><div class="note">First one is coming 💪</div></div>
+    <div class="s-card"><div class="label">MRR</div><div class="num" style="color:var(--accent)">$0</div><div class="note">Target: $10K/mo</div></div>
+  `;
+
+  // LR Metrics
+  document.getElementById('lr-metrics').innerHTML = `
+    <div class="metric"><div class="v">109</div><div class="l">Prospects</div></div>
+    <div class="metric"><div class="v">25</div><div class="l">Pre-written DMs</div></div>
+    <div class="metric"><div class="v">$297</div><div class="l">Avg Monthly</div></div>
+    <div class="metric"><div class="v">$0</div><div class="l">Setup Fee</div></div>
+  `;
+  document.getElementById('lr-pipeline').innerHTML = `
+    <div class="seg s1" style="flex:100">New: 109</div>
+    <div class="seg s2" style="flex:0">Contacted: 0</div>
+    <div class="seg s3" style="flex:0">Demo: 0</div>
+    <div class="seg s4" style="flex:0">Won: 0</div>
+  `;
+
+  // AAA Metrics  
+  document.getElementById('aaa-metrics').innerHTML = `
+    <div class="metric"><div class="v">50</div><div class="l">Prospects</div></div>
+    <div class="metric"><div class="v">3</div><div class="l">Demos Built</div></div>
+    <div class="metric"><div class="v">$2K</div><div class="l">Avg Retainer</div></div>
+    <div class="metric"><div class="v">3.48s</div><div class="l">Full Demo Run</div></div>
+  `;
+  document.getElementById('aaa-pipeline').innerHTML = `
+    <div class="seg s1" style="flex:100">New: 50</div>
+    <div class="seg s2" style="flex:0">Contacted: 0</div>
+    <div class="seg s3" style="flex:0">Demo: 0</div>
+    <div class="seg s4" style="flex:0">Won: 0</div>
+  `;
+
+  // Activity log
+  const activities = [
+    { time: '5:06 AM', desc: 'Built prospect prioritizer — 40 prospects scored live' },
+    { time: '4:46 AM', desc: 'Built content calendar, restored workspace (69 files)' },
+    { time: '4:26 AM', desc: 'Deployed 4 tools to GitHub Pages, fixed Pages rebuild' },
+    { time: '4:06 AM', desc: 'Built ops center, self-serve audit tool, proposal generator, referral page' },
+    { time: 'Jun 18', desc: 'Completed all 3 AAA demos (Lead Gen, Support AI, Content Factory)' },
+    { time: 'Jun 18', desc: 'AAA venture started — 50 real estate agent prospects' },
+    { time: 'Jun 17', desc: 'Full operations backend built (onboarding, reviews, reporting)' },
+    { time: 'Jun 16', desc: 'Local Reach fully built — Kennedy gave FULL GAS 🚀' },
+    { time: 'Jun 16', desc: 'Rex agent created — research complete' }
+  ];
+  document.getElementById('activity-log').innerHTML = activities.map(a => `
+    <div class="item"><span class="time">${a.time}</span><span class="desc">${a.desc}</span></div>
+  `).join('');
+}
+
+renderData('week');
+</script>
+</body>
+</html>
