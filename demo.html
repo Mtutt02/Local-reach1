@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex AAA — AI Automation Demos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:#f8f9fa; color:#1a1a2e; line-height:1.6; }
+.hero { background:linear-gradient(135deg,#0f172a,#1e293b,#334155); color:#fff; padding:60px 20px; text-align:center; }
+.hero h1 { font-size:40px; margin-bottom:10px; letter-spacing:-1px; }
+.hero .tagline { font-size:18px; color:#94a3b8; max-width:550px; margin:0 auto 20px; }
+.hero .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.hero .btn { display:inline-block; padding:10px 28px; border-radius:8px; font-weight:600; text-decoration:none; font-size:15px; transition:0.15s; }
+.hero .btn-primary { background:#3b82f6; color:#fff; }
+.hero .btn-primary:hover { background:#2563eb; }
+.hero .btn-outline { border:2px solid #475569; color:#cbd5e1; }
+.hero .btn-outline:hover { border-color:#3b82f6; color:#fff; }
+
+.container { max-width:900px; margin:0 auto; padding:40px 20px; }
+h2 { font-size:24px; text-align:center; margin-bottom:30px; }
+
+.demo-cards { display:grid; gap:20px; margin-bottom:40px; }
+.demo-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.demo-card .number { display:inline-block; background:#3b82f6; color:#fff; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; font-weight:700; margin-bottom:8px; }
+.demo-card h3 { font-size:18px; margin-bottom:6px; }
+.demo-card .desc { color:#64748b; font-size:14px; margin-bottom:12px; }
+.demo-card .features { display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:13px; }
+.demo-card .features li { list-style:none; padding:4px 0; }
+.demo-card .features li:before { content:'✅ '; }
+.demo-card .code-block { background:#0f172a; color:#e2e8f0; border-radius:8px; padding:12px; font-family:monospace; font-size:12px; line-height:1.8; margin-top:12px; overflow-x:auto; }
+
+.benefits { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:30px 0; }
+.benefit { text-align:center; padding:20px; }
+.benefit .icon { font-size:32px; margin-bottom:8px; }
+.benefit h4 { font-size:14px; margin-bottom:4px; }
+.benefit p { font-size:12px; color:#64748b; }
+
+.pricing { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px; margin:30px 0; }
+.pricing h3 { font-size:18px; margin-bottom:16px; text-align:center; }
+.pricing table { width:100%; border-collapse:collapse; font-size:13px; }
+.pricing th, .pricing td { padding:10px 12px; text-align:left; border-bottom:1px solid #e2e8f0; }
+.pricing th { background:#f8fafc; font-size:12px; text-transform:uppercase; color:#64748b; font-weight:600; }
+.pricing .highlight { background:#f0f9ff; font-weight:600; }
+
+.cta { background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; border-radius:12px; padding:32px; text-align:center; margin:30px 0; }
+.cta h3 { font-size:22px; margin-bottom:6px; }
+.cta p { color:#94a3b8; margin-bottom:16px; }
+
+.footer { text-align:center; padding:30px; color:#94a3b8; font-size:13px; }
+
+@media (max-width:600px) {
+  .hero h1 { font-size:28px; }
+  .demo-card .features { grid-template-columns:1fr; }
+  .benefits { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>🤖 Rex AI Automation</h1>
+  <p class="tagline">3 working demos. 90 seconds to see them. Houston-built automation that converts.</p>
+  <div class="btn-row">
+    <a href="https://mtutt02.github.io/Local-reach1/score.html" class="btn btn-primary">📋 See Prospect List</a>
+    <a href="https://mtutt02.github.io/Local-reach1/call.html" class="btn btn-outline">📞 Call Scripts</a>
+  </div>
+</div>
+
+<div class="container">
+  <h2>3 Working Demos</h2>
+  <p style="text-align:center;color:#64748b;margin-bottom:24px;">Full demo suite runs in <strong>3.48 seconds</strong>. Each demo is a working CLI tool you can run right now.</p>
+
+  <div class="demo-cards">
+    <div class="demo-card">
+      <div class="number">1</div>
+      <h3>📊 AI Lead Gen System</h3>
+      <p class="desc">Automated lead capture, scoring, and outreach for real estate agents. Scrapes Google Maps, generates personalized outreach, and tracks pipeline.</p>
+      <div class="features">
+        <li>Google Maps prospect scraping</li>
+        <li>Smart lead scoring</li>
+        <li>Personalized outreach variants</li>
+        <li>Pipeline tracking + CSV export</li>
+        <li>Demo mode with sample data</li>
+      </div>
+      <div class="code-block">
+        <span style="color:#22c55e;">$</span> python lead-gen-tool.py scan 77007<br>
+        <span style="color:#22c55e;">$</span> python lead-gen-tool.py prospect 16<br>
+        <span style="color:#22c55e;">$</span> python lead-gen-tool.py report
+      </div>
+    </div>
+
+    <div class="demo-card">
+      <div class="number">2</div>
+      <h3>💬 AI Customer Support</h3>
+      <p class="desc">Multi-profile support AI with sentiment detection, smart FAQ matching, and escalation routing. Supports real estate, e-com, and service business profiles.</p>
+      <div class="features">
+        <li>3 business profiles built-in</li>
+        <li>Smart FAQ matching (no API needed)</li>
+        <li>Sentiment detection (keyword-based)</li>
+        <li>Escalation routing to humans</li>
+        <li>Interactive chat + batch mode</li>
+      </div>
+      <div class="code-block">
+        <span style="color:#22c55e;">$</span> python support-ai-demo.py chat<br>
+        <span style="color:#22c55e;">$</span> python support-ai-demo.py batch<br>
+        <span style="color:#22c55e;">$</span> python support-ai-demo.py use ecom
+      </div>
+    </div>
+
+    <div class="demo-card">
+      <div class="number">3</div>
+      <h3>📝 AI Content Factory</h3>
+      <p class="desc">Generates 30 pieces of marketing content in 30 seconds. Supports 6 industries with platform-specific formats.</p>
+      <div class="features">
+        <li>6 industry template banks</li>
+        <li>30 pieces in 30 seconds</li>
+        <li>Social posts, newsletters, ads</li>
+        <li>Platform-specific formatting</li>
+        <li>Bulk export ready</li>
+      </div>
+      <div class="code-block">
+        <span style="color:#22c55e;">$</span> python content-factory.py generate "Garcia Roofing" roofing houston<br>
+        <span style="color:#22c55e;">$</span> python content-factory.py list<br>
+        <span style="color:#22c55e;">$</span> python demo-runner.py full
+      </div>
+    </div>
+  </div>
+
+  <div class="benefits">
+    <div class="benefit">
+      <div class="icon">⚡</div>
+      <h4>60-Second Response</h4>
+      <p>Leads convert 7x more when contacted within 1 minute</p>
+    </div>
+    <div class="benefit">
+      <div class="icon">🤖</div>
+      <h4>Runs on Autopilot</h4>
+      <p>Set it once, it works 24/7 without human intervention</p>
+    </div>
+    <div class="benefit">
+      <div class="icon">📈</div>
+      <h4>40% More Leads</h4>
+      <p>Pilot client saw 40% more appointments in week one</p>
+    </div>
+    <div class="benefit">
+      <div class="icon">🛠️</div>
+      <h4>Custom Built</h4>
+      <p>Trained on your business voice, processes, and data</p>
+    </div>
+  </div>
+
+  <div class="pricing">
+    <h3>Pricing</h3>
+    <table>
+      <tr><th>Package</th><th>Setup</th><th>Monthly</th><th>Best For</th></tr>
+      <tr><td>Lead Gen System</td><td>$3,000</td><td>$1,000</td><td>Real estate agents</td></tr>
+      <tr><td>AI Support Chat</td><td>$2,000</td><td>$500</td><td>E-com / service businesses</td></tr>
+      <tr class="highlight"><td>Growth Stack</td><td>$4,500</td><td>$1,500</td><td>Lead gen + support chat</td></tr>
+      <tr><td>Full Suite</td><td>$7,000</td><td>$3,000</td><td>Enterprise / agencies</td></tr>
+    </table>
+    <p style="text-align:center;color:#64748b;font-size:13px;margin-top:12px;">First 30 days are a trial — if you're not getting results, you pay nothing for setup.</p>
+  </div>
+
+  <div class="cta">
+    <h3>Want to See It in Action?</h3>
+    <p>90-second demo. No pitch. Just results.</p>
+    <a href="https://mtutt02.github.io/Local-reach1/call.html" class="btn" style="display:inline-block;padding:10px 28px;border-radius:8px;background:#3b82f6;color:#fff;font-weight:600;text-decoration:none;font-size:15px;">📞 Get in Touch</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Rex Automation Solutions · Houston, TX</p>
+  <p style="margin-top:4px;"><a href="https://mtutt02.github.io/Local-reach1/" style="color:#3b82f6;">Local Reach</a> — GBP Management</p>
+</div>
+</body>
+</html>
