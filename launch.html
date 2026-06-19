@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Ventures — Launch Status</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+.container { max-width:800px; margin:0 auto; padding:32px 20px; }
+.hero { text-align:center; margin-bottom:32px; }
+.hero h1 { font-size:32px; margin-bottom:4px; }
+.hero .badge { display:inline-block; padding:3px 14px; border-radius:12px; background:var(--green); color:#000; font-size:12px; font-weight:700; margin-bottom:12px; }
+.hero .sub { color:var(--text2); font-size:15px; }
+.hero .big-num { font-size:64px; font-weight:800; margin:8px 0; color:var(--green); }
+
+.launch-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px; }
+.launch-box h2 { font-size:16px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+
+.tools-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:16px; }
+.tool-item { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px; display:flex; justify-content:space-between; align-items:center; }
+.tool-item .name { font-size:13px; }
+.tool-item .status { font-size:11px; padding:2px 8px; border-radius:8px; }
+.tool-item .status.go { background:#1a3a2a; color:var(--green); }
+.tool-item a { color:var(--accent); text-decoration:none; font-size:12px; }
+.tool-item a:hover { text-decoration:underline; }
+
+.action-list { display:grid; gap:8px; }
+.action-item { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; display:flex; gap:12px; align-items:flex-start; }
+.action-item .pri { font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600; min-width:30px; text-align:center; }
+.pri-p0 { background:var(--red); color:#fff; }
+.pri-p1 { background:var(--orange); color:#000; }
+.action-item .desc { flex:1; }
+.action-item .desc h4 { font-size:14px; margin-bottom:2px; }
+.action-item .desc p { font-size:12px; color:var(--text2); }
+.action-item .link { font-size:12px; color:var(--accent); margin-top:4px; display:inline-block; }
+
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+.stat { text-align:center; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+.stat .num { font-size:24px; font-weight:700; }
+.stat .lbl { font-size:11px; color:var(--text2); margin-top:2px; }
+.stat .num.green { color:var(--green); }
+.stat .num.purple { color:var(--purple); }
+.stat .num.orange { color:var(--orange); }
+
+.meta { font-size:12px; color:var(--text2); text-align:center; margin-top:24px; }
+
+@media (max-width:600px) {
+  .tools-grid { grid-template-columns:1fr; }
+  .stats { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <div class="badge">✅ 100% READY</div>
+    <h1>Rex Ventures</h1>
+    <div class="big-num">🚀</div>
+    <div class="sub">Local Reach + Rex AAA — fully built and ready for launch</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num green">10</div><div class="lbl">Live Pages</div></div>
+    <div class="stat"><div class="num purple">134</div><div class="lbl">Scored Prospects</div></div>
+    <div class="stat"><div class="num orange">25</div><div class="lbl">Pre-written DMs</div></div>
+    <div class="stat"><div class="num green">3</div><div class="lbl">Working Demos</div></div>
+  </div>
+
+  <div class="launch-box">
+    <h2>📋 All Tools</h2>
+    <div class="tools-grid">
+      <div class="tool-item"><span class="name">🎯 Prospect Prioritizer</span><a href="https://mtutt02.github.io/Local-reach1/score.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">📞 Call Scripts + Log</span><a href="https://mtutt02.github.io/Local-reach1/call.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">🔍 GBP Audit Tool</span><a href="https://mtutt02.github.io/Local-reach1/gbp-audit.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">📊 Ops Center (CRM)</span><a href="https://mtutt02.github.io/Local-reach1/ops.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">📄 Proposal Generator</span><a href="https://mtutt02.github.io/Local-reach1/propose.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">📅 Content Calendar</span><a href="https://mtutt02.github.io/Local-reach1/calendar.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">🏠 Client Dashboard</span><a href="https://mtutt02.github.io/Local-reach1/client.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">📈 KPI Dashboard</span><a href="https://mtutt02.github.io/Local-reach1/kpi.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">💰 Referral Program</span><a href="https://mtutt02.github.io/Local-reach1/refer.html" target="_blank">Open →</a></div>
+      <div class="tool-item"><span class="name">🏠 Landing Page</span><a href="https://mtutt02.github.io/Local-reach1/" target="_blank">Open →</a></div>
+    </div>
+  </div>
+
+  <div class="launch-box">
+    <h2>🎯 Launch Checklist — 3 Human Steps</h2>
+    <div class="action-list">
+      <div class="action-item">
+        <div class="pri pri-p0">P0</div>
+        <div class="desc">
+          <h4>🔥 Send 5 LinkedIn DMs</h4>
+          <p>Open prioritizer → copy DM → paste into LinkedIn. Start with Kingwood Real Estate (18 reviews, 71 gap).</p>
+          <a class="link" href="https://mtutt02.github.io/Local-reach1/score.html" target="_blank">→ Open Prioritizer</a>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="pri pri-p0">P0</div>
+        <div class="desc">
+          <h4>🛒 Purchase Domain + Instantly (~$48)</h4>
+          <p>Needed to activate email sequences. Buy a domain + Instantly subscription, configure email sequence from email-sequences.md.</p>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="pri pri-p1">P1</div>
+        <div class="desc">
+          <h4>📞 Make 5 Calls + Record Loom</h4>
+          <p>Use call scripts from call.html. Record a 3-min Loom demo showing the 3 AAA demos (script in outreach-kit.md).</p>
+          <a class="link" href="https://mtutt02.github.io/Local-reach1/call.html" target="_blank">→ Open Call Scripts</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="launch-box">
+    <h2>📊 Business Model Summary</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px;">
+      <div>
+        <h3 style="font-size:14px;margin-bottom:6px;">🏠 Local Reach</h3>
+        <p style="color:var(--text2);line-height:1.6;">
+          <strong style="color:var(--text);">Price:</strong> $297/mo (standard)<br>
+          <strong style="color:var(--text);">Setup:</strong> $0<br>
+          <strong style="color:var(--text);">Prospects:</strong> 109 Houston businesses<br>
+          <strong style="color:var(--text);">Persona:</strong> Marcus Thompson<br>
+          <strong style="color:var(--text);">Path to $10K:</strong> 34 clients
+        </p>
+      </div>
+      <div>
+        <h3 style="font-size:14px;margin-bottom:6px;">🤖 Rex AAA</h3>
+        <p style="color:var(--text2);line-height:1.6;">
+          <strong style="color:var(--text);">Price:</strong> $3K setup + $1K/mo (lead gen)<br>
+          <strong style="color:var(--text);">Demos:</strong> 3 working (Lead Gen, Support AI, Content)<br>
+          <strong style="color:var(--text);">Prospects:</strong> 50 real estate agents<br>
+          <strong style="color:var(--text);">Runtime:</strong> Full demo suite in 3.48s<br>
+          <strong style="color:var(--text);">Path to $10K:</strong> 5 clients
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <p>Rex Ventures · Built June 16-19, 2026</p>
+    <p style="margin-top:4px;">All tools live at <a href="https://mtutt02.github.io/Local-reach1/" style="color:var(--accent);">mtutt02.github.io/Local-reach1/</a></p>
+  </div>
+</div>
+</body>
+</html>
