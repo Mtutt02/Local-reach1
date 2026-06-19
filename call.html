@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Call Scripts & Objection Handler</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+.container { max-width:900px; margin:0 auto; padding:24px 20px; }
+h1 { font-size:24px; margin-bottom:4px; }
+.sub { color:var(--text2); margin-bottom:20px; }
+
+.tabs { display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+.tabs button { padding:8px 18px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:13px; transition:0.15s; font-weight:500; }
+.tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.tabs button:hover:not(.active) { border-color:var(--accent); color:var(--text); }
+
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+.script-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:12px; }
+.script-card .head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.script-card .head h3 { font-size:15px; }
+.script-card .head .tag { font-size:10px; padding:2px 8px; border-radius:8px; font-weight:600; }
+.tag-warm { background:#1a3a2a; color:var(--green); }
+.tag-cold { background:#3a2a1a; color:var(--orange); }
+.tag-objection { background:#3a1a1a; color:var(--red); }
+.script-card .script { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:14px; font-size:13px; line-height:1.7; white-space:pre-wrap; }
+.script-card .script .note { color:var(--text2); font-style:italic; }
+.script-card .actions { display:flex; gap:6px; margin-top:10px; }
+.script-card .actions button { padding:4px 12px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-size:12px; transition:0.15s; }
+.script-card .actions button:hover { background:var(--surface2); color:var(--text); }
+
+/* Objections */
+.objection { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:10px; }
+.objection .q { font-weight:600; font-size:14px; color:var(--orange); margin-bottom:6px; }
+.objection .a { font-size:13px; line-height:1.6; }
+.objection .a strong { color:var(--green); }
+.objection .actions { margin-top:8px; }
+
+/* Call Timer */
+.timer-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:20px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+.timer-bar .display { font-size:36px; font-weight:700; font-family:monospace; letter-spacing:2px; min-width:120px; }
+.timer-bar button { padding:6px 16px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:0.15s; }
+.btn-start { background:var(--green); color:#000; }
+.btn-start:hover { background:#3aa84a; }
+.btn-stop { background:var(--red); color:#fff; }
+.btn-stop:hover { background:#d43; }
+.btn-reset { background:var(--surface2); color:var(--text2); border:1px solid var(--border) !important; }
+.timer-bar .note { font-size:12px; color:var(--text2); flex:1; text-align:right; }
+
+/* Call Log */
+.log-table { width:100%; border-collapse:collapse; font-size:12px; }
+.log-table th, .log-table td { padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); }
+.log-table th { background:var(--surface); color:var(--text2); font-size:10px; text-transform:uppercase; letter-spacing:0.5px; }
+.log-entry { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:10px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between; }
+.log-entry .info { flex:1; }
+.log-entry .outcome { font-weight:600; }
+.outcome-yes { color:var(--green); }
+.outcome-maybe { color:var(--orange); }
+.outcome-no { color:var(--red); }
+.outcome-vm { color:var(--text2); }
+.outcome-callback { color:var(--purple); }
+
+.modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:200; justify-content:center; align-items:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; max-width:450px; width:90%; }
+.modal h3 { font-size:16px; margin-bottom:12px; }
+.form-group { margin-bottom:10px; }
+.form-group label { display:block; font-size:12px; color:var(--text2); margin-bottom:4px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:8px 12px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; outline:none; }
+.form-group textarea { min-height:50px; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.btn { padding:8px 18px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:600; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text2); }
+
+@media (max-width:600px) {
+  .timer-bar { flex-direction:column; align-items:stretch; text-align:center; }
+  .timer-bar .display { font-size:28px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📞 Call Scripts & Objection Handler</h1>
+  <p class="sub">Phone scripts, objection responses, and call tracking — all in one place.</p>
+
+  <!-- Timer -->
+  <div class="timer-bar">
+    <div class="display" id="timer-display">00:00</div>
+    <button class="btn-start" id="timer-btn" onclick="toggleTimer()">▶ Start Call</button>
+    <button class="btn-reset" onclick="resetTimer()">↺ Reset</button>
+    <span class="note" id="timer-note">Ready — pick a script and start</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="active" onclick="switchTab('lr',this)">🏠 Local Reach Scripts</button>
+    <button onclick="switchTab('aaa',this)">🤖 Rex AAA Scripts</button>
+    <button onclick="switchTab('objections',this)">🛡️ Objection Handling</button>
+    <button onclick="switchTab('log',this)">📋 Call Log</button>
+  </div>
+
+  <!-- LR Scripts -->
+  <div class="tab-pane active" id="pane-lr">
+    <div class="script-card">
+      <div class="head"><h3>🏠 Warm Call — Follow Up on Free Audit</h3><span class="tag tag-warm">Warm</span></div>
+      <div class="script" id="script-lr-warm">
+<span class="note">// For prospects who engaged with the audit tool or replied to a DM</span>
+
+"Hey {FirstName}, it's Marcus from Local Reach. You had me take a look at your Google profile a few days ago — wanted to share what I found.
+
+Quick summary: 
+• You're at {X} reviews. Top competitor in your area has {Y}. That gap alone is probably costing you {Z} calls a month.
+• Your profile is missing {categories} — people searching for those services won't find you.
+• No Google Posts in {months} — that's free visibility you're leaving on the table.
+
+The good news? I can fix all of this for $297/month. First 30 days are a trial — if you don't see results, you pay nothing.
+
+Got 10 minutes this week to let me show you what I'd do?"</div>
+      <div class="actions">
+        <button onclick="copyScript('script-lr-warm')">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="head"><h3>❄️ Cold Call — Specific Observation</h3><span class="tag tag-cold">Cold</span></div>
+      <div class="script" id="script-lr-cold">
+<span class="note">// Research their GBP first. Use specific numbers.</span>
+
+"Hey {FirstName}, this is Marcus with Local Reach here in Houston. I know you're busy running {BusinessName} so I'll keep this quick.
+
+I was checking out your Google Business Profile and noticed something interesting — you've got {X} reviews but {Competitor} in the same area has {Y}. Also noticed your profile hasn't had a new post in a while.
+
+We help local businesses fix these gaps. Free audit takes me 2 minutes — I'll send you a PDF showing exactly what's working and what's not.
+
+No pitch, no pressure. Want me to send it over?"
+
+<span class="note">// If they say yes: "Great! I'll send it to {email} within 24 hours. Mind if I follow up after you've had a look?"</span>
+<span class="note">// If they say no/not interested: "No worries at all. Quick tip: start responding to reviews within 24 hours — that alone helps ranking. I'll leave you my website if you ever want to revisit."</span></div>
+      <div class="actions">
+        <button onclick="copyScript('script-lr-cold')">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="head"><h3>💰 Closing Call — Trial to Paid</h3><span class="tag tag-warm">Warm</span></div>
+      <div class="script" id="script-lr-close">
+<span class="note">// After 30-day free trial</span>
+
+"Hey {FirstName}! How's it going? I wanted to check in on how things are looking with your profile.
+
+Since we started:
+• You've gained {X} new reviews
+• Profile views are up {Y}%
+• You've had {Z} new direction requests / calls
+
+We're coming up on the end of your trial. I'd love to keep going — would you like to continue at $297/month?
+
+We can start month-to-month, cancel anytime with 30 days notice. No contracts, no hidden fees."
+
+<span class="note">// If yes: "Perfect! I'll send over the payment link. Same as the trial, just continues from here."</span>
+<span class="note">// If hesitant: "What's giving you pause? Happy to adjust anything to make it work better for you."</span></div>
+      <div class="actions">
+        <button onclick="copyScript('script-lr-close')">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AAA Scripts -->
+  <div class="tab-pane" id="pane-aaa">
+    <div class="script-card">
+      <div class="head"><h3>🤖 Warm Call — Post-Demo Follow Up</h3><span class="tag tag-warm">Warm</span></div>
+      <div class="script" id="script-aaa-warm">
+<span class="note">// After showing demo</span>
+
+"Hey {FirstName}, Rex here. You saw the demo of the lead gen system — what did you think?
+
+Just to recap what you saw:
+• Every lead gets a text within 60 seconds (78% of buyers choose the first agent who responds)
+• 5 automatic follow-ups over 7 days (no manual work)
+• Review generation on autopilot
+
+Our first client saw 40% more appointments in week one.
+
+The system is $3K setup + $1K/month. First 30 days are a trial — if you're not getting more leads, you don't pay.
+
+Want to get started this week?"</div>
+      <div class="actions">
+        <button onclick="copyScript('script-aaa-warm')">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="head"><h3>❄️ Cold Call — Gap Discovery</h3><span class="tag tag-cold">Cold</span></div>
+      <div class="script" id="script-aaa-cold">
+<span class="note">// Research their current lead volume first</span>
+
+"Hey {FirstName}, this is Rex with Rex Automation. Quick question — how are you handling lead follow-up right now?
+
+The reason I'm calling: agents in your area who automate their lead response are closing 30-50% more leads than those who don't. It's not about working harder — it's about being the first to respond.
+
+I built a system that texts every new lead within 60 seconds, follows up 5 times automatically, and generates review requests on autopilot.
+
+It takes me 90 seconds to show you how it works. Worth a look?"
+
+<span class="note">// If interested: schedule a 15-minute Zoom demo. Send them demo-link.html.</span>
+<span class="note">// If not: "Totally understand. If you change your mind, my website's at rexautomation.io."</span></div>
+      <div class="actions">
+        <button onclick="copyScript('script-aaa-cold')">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="head"><h3>🏆 Objection: "I already have a system"</h3><span class="tag tag-objection">Objection</span></div>
+      <div class="script" id="script-aaa-objection">
+<span class="note">// Most common objection from agents</span>
+
+"That's great — which one are you using?
+
+The reason I ask: most CRMs don't actually automate the response. They just log it. Our system goes from inquiry to text in under 60 seconds — no manual step in between.
+
+What's your current response time? Average is 12 hours. We get it down to 60 seconds.
+
+Mind if I show you the difference? 90 seconds."</div>
+      <div class="actions">
+        <button onclick="copyScript('script-aaa-objection')">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Objections Tab -->
+  <div class="tab-pane" id="pane-objections">
+    <div class="objection">
+      <div class="q">🛑 "It's too expensive" / "I don't have the budget"</div>
+      <div class="a"><strong>Respond with ROI framing:</strong><br>
+"Totally fair. Let me put it in perspective — {297/month} breaks down to about {10/day}. If we generate just one extra customer per month, you've already made your money back 5x.
+
+Average ROI for our clients is 5-10x. Would you rather wait until you're losing more ground to competitors?"
+
+<span style="display:block;margin-top:6px;color:var(--text2);font-size:12px;">💡 For AAA: Compare to cost of a single Zillow lead ($50-150). Our system is cheaper than 3 Zillow leads and generates unlimited.</span></div>
+    </div>
+
+    <div class="objection">
+      <div class="q">🛑 "I need to think about it" / "Let me get back to you"</div>
+      <div class="a"><strong>Soft close with timeline:</strong><br>
+"I completely understand — it's a decision. What specifically would help you make the call?
+
+If it helps, we can start with a 30-day trial. If you're not seeing results, you pay nothing. No risk to you.
+
+When would be a good time to follow up? Thursday or Friday?"</div>
+    </div>
+
+    <div class="objection">
+      <div class="q">🛑 "I'm not interested" (cold call)</div>
+      <div class="a"><strong>Respectful exit with value:</strong><br>
+"No problem at all — I respect your time. Before I go, one quick tip that'll cost you nothing:
+
+[LR] Start responding to every Google review within 24 hours. That alone will improve your local ranking.
+[AAA] Set up a text autoresponder for new leads — even a simple one. 60-second response is the difference.
+
+I'll leave you my info. If things change, I'm one call away."</div>
+    </div>
+
+    <div class="objection">
+      <div class="q">🛑 "We already have someone managing our GBP/leads"</div>
+      <div class="a"><strong>Differentiate or offer to improve:</strong><br>
+"That's good — who are you using?
+
+I'm not here to replace them, but I can tell you within 2 minutes if there are gaps they're missing. Most agencies focus on one thing — we do a full audit across all dimensions.
+
+No charge. Want me to take a quick look?"</div>
+    </div>
+
+    <div class="objection">
+      <div class="q">🛑 "Can you do it cheaper?"</div>
+      <div class="a"><strong>Hold pricing, offer value:</strong><br>
+"Our price is $297/mo for a reason — we do what works. I could cut corners and charge $99, but you'd get $99 results.
+
+The first month is a trial. If it's not worth every penny, you don't pay. What's the risk?"
+
+<span style="display:block;margin-top:6px;color:var(--text2);font-size:12px;">💡 Never discount. The trial IS the risk reversal.</span></div>
+    </div>
+
+    <div class="objection">
+      <div class="q">🛑 "I don't have time for this"</div>
+      <div class="a"><strong>Flip it — WE save time:</strong><br>
+"That's exactly why you need us. Our whole service is built on saving you time.
+
+[LR] We handle your Google profile so you don't have to. 10 minutes to set up, then it runs itself.
+[AAA] Our system follows up with leads so you don't have to. Set it once, runs on autopilot.
+
+We don't add to your plate. We take things off."</div>
+    </div>
+
+    <div class="objection">
+      <div class="q">🛑 "My business is doing fine without it"</div>
+      <div class="a"><strong>Acknowledge + future-proof:</strong><br>
+"Glad to hear business is good! That's the best time to optimize — when you're not desperate.
+
+Your competitors are optimizing right now. In 6 months, they'll be ranking above you. We're not asking you to fix something broken — we're asking you to get ahead before your competition does.
+
+30-day trial. You'll see the difference in 2 weeks."</div>
+    </div>
+  </div>
+
+  <!-- Call Log Tab -->
+  <div class="tab-pane" id="pane-log">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <h3 style="font-size:15px;">📋 Today's Calls <span style="font-size:12px;color:var(--text2);font-weight:400;" id="call-count"></span></h3>
+      <button class="btn btn-primary" onclick="showAddCall()">+ Log Call</button>
+    </div>
+
+    <div id="call-log-list">
+      <div style="text-align:center;padding:40px 20px;color:var(--text2);">
+        <div style="font-size:40px;margin-bottom:8px;">📞</div>
+        <div>No calls logged yet</div>
+        <div style="font-size:13px;margin-top:4px;">Click "+ Log Call" to start tracking</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;font-size:12px;color:var(--text2);text-align:right;">
+      Calls persist in your browser. <button class="btn btn-outline" style="padding:2px 8px;font-size:11px;" onclick="if(confirm('Clear all call logs?')){localStorage.removeItem('rex_call_log');renderLog();}">Clear All</button>
+    </div>
+  </div>
+
+  <!-- Add Call Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h3>📞 Log Call</h3>
+      <div class="form-group">
+        <label>Prospect Name</label>
+        <input type="text" id="log-name" placeholder="e.g. Mike Garcia">
+      </div>
+      <div class="form-group">
+        <label>Business</label>
+        <input type="text" id="log-biz" placeholder="e.g. Garcia Roofing">
+      </div>
+      <div class="form-group">
+        <label>Venture</label>
+        <select id="log-venture">
+          <option value="lr">Local Reach</option>
+          <option value="aaa">Rex AAA</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Outcome</label>
+        <select id="log-outcome">
+          <option value="interested">🔥 Interested — wants follow-up</option>
+          <option value="callback">📅 Scheduled callback</option>
+          <option value="vm">📞 Left voicemail</option>
+          <option value="no-answer">📴 No answer</option>
+          <option value="not-interested">💤 Not interested</option>
+          <option value="closed">💰 Closed/Won</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="log-notes" placeholder="Key details, objections raised, next steps..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCall()">💾 Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// === TIMER ===
+let timerRunning = false;
+let timerSeconds = 0;
+let timerInterval = null;
+
+function toggleTimer() {
+  const btn = document.getElementById('timer-btn');
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    btn.textContent = '▶ Start Call';
+    btn.className = 'btn-start';
+    document.getElementById('timer-note').textContent = `Call ended — ${formatTime(timerSeconds)}`;
+    // Enable add call if > 30 seconds
+    if (timerSeconds >= 30) {
+      document.getElementById('timer-note').textContent += ' 📝 Log it below!';
+    }
+  } else {
+    timerRunning = true;
+    btn.textContent = '⏹ End Call';
+    btn.className = 'btn-stop';
+    document.getElementById('timer-note').textContent = 'Call in progress...';
+    timerInterval = setInterval(() => {
+      timerSeconds++;
+      document.getElementById('timer-display').textContent = formatTime(timerSeconds);
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-btn').textContent = '▶ Start Call';
+    document.getElementById('timer-btn').className = 'btn-start';
+  }
+  timerSeconds = 0;
+  document.getElementById('timer-display').textContent = '00:00';
+  document.getElementById('timer-note').textContent = 'Ready';
+}
+
+function formatTime(secs) {
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+// === TABS ===
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`pane-${tab}`).classList.add('active');
+}
+
+// === COPY ===
+function copyScript(id) {
+  const el = document.getElementById(id);
+  const text = el.textContent.replace(/^\/\/.*$/gm, '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.script-card .actions button');
+    btns.forEach(b => { if (b.textContent === '📋 Copy') { b.textContent = '✅ Copied!'; setTimeout(() => b.textContent = '📋 Copy', 2000); } });
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+// === CALL LOG ===
+let callLog = JSON.parse(localStorage.getItem('rex_call_log') || '[]');
+
+function renderLog() {
+  const container = document.getElementById('call-log-list');
+  const count = document.getElementById('call-count');
+  
+  callLog.sort((a, b) => b.timestamp - a.timestamp);
+  count.textContent = `(${callLog.length} total)`;
+  
+  if (callLog.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text2);"><div style="font-size:40px;margin-bottom:8px;">📞</div><div>No calls logged yet</div><div style="font-size:13px;margin-top:4px;">Click "+ Log Call" to start tracking</div></div>`;
+    return;
+  }
+  
+  container.innerHTML = callLog.map(c => {
+    const outcomeLabels = {
+      interested: '🔥 Interested',
+      callback: '📅 Callback',
+      vm: '📞 Voicemail',
+      'no-answer': '📴 No Answer',
+      'not-interested': '💤 Not Interested',
+      closed: '💰 Closed!'
+    };
+    const outcomeClasses = {
+      interested: 'outcome-maybe',
+      callback: 'outcome-callback',
+      vm: 'outcome-vm',
+      'no-answer': 'outcome-vm',
+      'not-interested': 'outcome-no',
+      closed: 'outcome-yes'
+    };
+    return `<div class="log-entry">
+      <div class="info">
+        <strong>${c.name}</strong> — ${c.biz}
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">${new Date(c.timestamp).toLocaleTimeString()}</span>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px;">${c.notes || ''}</div>
+      </div>
+      <div class="outcome ${outcomeClasses[c.outcome]}">${outcomeLabels[c.outcome] || c.outcome}</div>
+    </div>`;
+  }).join('');
+}
+
+function showAddCall() {
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('log-name').value = '';
+  document.getElementById('log-biz').value = '';
+  document.getElementById('log-notes').value = '';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function saveCall() {
+  const name = document.getElementById('log-name').value.trim();
+  const biz = document.getElementById('log-biz').value.trim();
+  const venture = document.getElementById('log-venture').value;
+  const outcome = document.getElementById('log-outcome').value;
+  const notes = document.getElementById('log-notes').value.trim();
+
+  if (!name) { alert('Enter prospect name'); return; }
+  if (!biz) { alert('Enter business name'); return; }
+
+  callLog.push({
+    name, biz, venture, outcome, notes,
+    timestamp: Date.now(),
+    duration: timerSeconds || 0
+  });
+
+  localStorage.setItem('rex_call_log', JSON.stringify(callLog));
+  renderLog();
+  closeModal();
+  resetTimer();
+}
+
+// Init
+renderLog();
+</script>
+</body>
+</html>
