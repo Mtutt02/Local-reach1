@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Reach — Client Dashboard</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+.container { max-width:1100px; margin:0 auto; padding:24px 20px; }
+.topbar { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:8px; }
+.topbar h1 { font-size:22px; }
+.topbar .sub { color:var(--text2); font-size:13px; }
+.topbar .status { padding:4px 12px; border-radius:12px; font-size:12px; font-weight:600; }
+.status-active { background:#1a3a2a; color:var(--green); }
+
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-bottom:20px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.card .label { font-size:11px; text-transform:uppercase; color:var(--text2); letter-spacing:0.5px; margin-bottom:4px; }
+.card .value { font-size:28px; font-weight:700; }
+.card .change { font-size:12px; margin-top:2px; }
+.card .change.up { color:var(--green); }
+.card .change.down { color:var(--red); }
+
+.section { margin-bottom:24px; }
+.section h2 { font-size:16px; margin-bottom:12px; color:var(--text); display:flex; align-items:center; gap:6px; }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+
+/* Profile card */
+.profile-header { display:flex; gap:20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px; align-items:center; flex-wrap:wrap; }
+.profile-header .info { flex:1; }
+.profile-header .name { font-size:20px; font-weight:700; }
+.profile-header .meta { font-size:13px; color:var(--text2); margin-top:2px; }
+.profile-header .score-big { text-align:center; min-width:80px; }
+.profile-header .score-big .num { font-size:36px; font-weight:800; }
+.profile-header .score-big .lbl { font-size:11px; color:var(--text2); text-transform:uppercase; }
+
+/* Chart placeholder */
+.chart-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; min-height:180px; position:relative; overflow:hidden; }
+.chart-box h3 { font-size:13px; margin-bottom:8px; }
+
+/* Table */
+.table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th, td { padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+th { background:var(--surface); color:var(--text2); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+tr:hover { background:var(--surface2); }
+.highlight-row { background:rgba(63,185,80,0.1); }
+
+/* Bar chart */
+.bar-chart { display:flex; align-items:flex-end; gap:6px; height:100px; padding:8px 0; }
+.bar-chart .bar-group { flex:1; display:flex; flex-direction:column; align-items:center; }
+.bar-chart .bar { width:100%; background:var(--accent); border-radius:4px 4px 0 0; min-height:4px; transition:height 0.3s; position:relative; }
+.bar-chart .bar-label { font-size:10px; color:var(--text2); margin-top:4px; }
+.bar-chart .bar:hover { opacity:0.8; }
+.bar-chart .bar.r1 { background:var(--accent); }
+.bar-chart .bar.r2 { background:var(--purple); }
+.bar-chart .bar.r3 { background:var(--green); }
+.bar-chart .bar.r4 { background:var(--orange); }
+
+/* Posts list */
+.posts-list { display:grid; gap:8px; }
+.post-item { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px; font-size:12px; }
+.post-item .date { color:var(--text2); font-size:11px; }
+.post-item .text { margin:4px 0; line-height:1.4; }
+.post-item .stats { display:flex; gap:12px; font-size:11px; color:var(--text2); }
+
+/* Select */
+.client-select { padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:13px; outline:none; }
+
+@media (max-width:700px) {
+  .grid-2, .grid-3 { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div>
+      <h1>📊 Client Dashboard</h1>
+      <div class="sub">Google Business Profile performance overview</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select class="client-select" id="client-select" onchange="switchClient()">
+        <option value="garcia">Garcia Roofing</option>
+        <option value="truth">Truth BBQ</option>
+        <option value="five-star">Five Star Air</option>
+      </select>
+      <span class="status status-active">● Active</span>
+    </div>
+  </div>
+
+  <!-- Profile Header -->
+  <div class="profile-header" id="profile-header">
+    <div class="info">
+      <div class="name" id="biz-name">Garcia Roofing</div>
+      <div class="meta" id="biz-meta">Roofing · Houston, TX · Member since June 2026</div>
+    </div>
+    <div class="score-big">
+      <div class="num" style="color:var(--green)" id="health-score">78</div>
+      <div class="lbl">Profile Health</div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="cards" id="kpi-cards"></div>
+
+  <!-- Charts Row -->
+  <div class="grid-2">
+    <div class="chart-box">
+      <h3>⭐ Reviews Over Time</h3>
+      <div class="bar-chart" id="review-chart"></div>
+    </div>
+    <div class="chart-box">
+      <h3>📞 Profile Views (Last 30 Days)</h3>
+      <div class="bar-chart" id="views-chart"></div>
+    </div>
+  </div>
+
+  <!-- Third Row -->
+  <div class="grid-3" style="margin-top:12px;">
+    <div class="card">
+      <div class="label">Avg Rating</div>
+      <div class="value" id="avg-rating">4.3</div>
+      <div class="change up">▲ +0.2 this month</div>
+    </div>
+    <div class="card">
+      <div class="label">Reviews This Month</div>
+      <div class="value" id="reviews-mo">12</div>
+      <div class="change up">▲ +4 vs last month</div>
+    </div>
+    <div class="card">
+      <div class="label">Posts Published</div>
+      <div class="value" id="posts-mo">8</div>
+      <div class="change up">▲ +3 vs last month</div>
+    </div>
+  </div>
+
+  <!-- Competitor Comparison -->
+  <div class="section">
+    <h2>🏅 Competitor Comparison</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Business</th><th>Reviews</th><th>Rating</th><th>Posts (30d)</th><th>Response Rate</th><th>Photos</th></tr></thead>
+        <tbody id="competitor-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Posts -->
+  <div class="section">
+    <h2>📝 Recent Google Posts</h2>
+    <div class="posts-list" id="recent-posts"></div>
+  </div>
+
+  <!-- Monthly Report Link -->
+  <div style="text-align:center;margin-top:20px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
+    <p style="font-size:13px;color:var(--text2);">📄 <a href="#" style="color:var(--accent);">Download Full Monthly Report (PDF)</a></p>
+  </div>
+</div>
+
+<script>
+// Client Data
+const CLIENTS = {
+  garcia: {
+    name: 'Garcia Roofing',
+    industry: 'Roofing',
+    city: 'Houston, TX',
+    health: 78,
+    avgRating: 4.3,
+    reviewsMo: 12,
+    postsMo: 8,
+    kpis: [
+      { label: 'Total Reviews', value: '47', change: '+12 this month', dir: 'up' },
+      { label: 'Avg Rating', value: '4.3', change: '+0.2', dir: 'up' },
+      { label: 'Profile Views', value: '3,240', change: '+28% vs last month', dir: 'up' },
+      { label: 'Direction Requests', value: '187', change: '+15%', dir: 'up' },
+      { label: 'Phone Calls', value: '94', change: '+22% vs last month', dir: 'up' },
+      { label: 'Photos', value: '34', change: '+8 this month', dir: 'up' }
+    ],
+    reviewTrend: [8, 12, 15, 18, 22, 28, 35, 40, 42, 44, 45, 47],
+    viewsTrend: [120, 245, 380, 520, 780, 1100, 1580, 2100, 2450, 2780, 3010, 3240],
+    competitors: [
+      { name: 'Elite Roofing', reviews: 35, rating: 4.3, posts: 2, responseRate: '60%', photos: 20 },
+      { name: 'Houston Roof Pro', reviews: 80, rating: 4.5, posts: 6, responseRate: '85%', photos: 50 },
+      { name: 'Garcia Roofing', reviews: 47, rating: 4.3, posts: 8, responseRate: '95%', photos: 34, highlight: true },
+      { name: 'ABC Roofing', reviews: 28, rating: 4.0, posts: 1, responseRate: '30%', photos: 12 }
+    ],
+    posts: [
+      { date: 'Jun 16', text: '🔥 Summer special: Free roof inspection + 10% off repairs. Call today!', views: 892, clicks: 28 },
+      { date: 'Jun 12', text: '🏠 Just completed a full roof replacement in the Heights! Before/after coming soon.', views: 1450, clicks: 42 },
+      { date: 'Jun 8', text: '💡 Tip: Check your attic for leaks after heavy rain. Catch issues early.', views: 2100, clicks: 56 },
+      { date: 'Jun 4', text: '⭐ New review: "Best roofing company in Houston! Fast, professional, and clean."', views: 780, clicks: 18 },
+      { date: 'Jun 1', text: '✅ Licensed, bonded, insured. Over 500 roofs replaced in Houston since 2018.', views: 670, clicks: 15 }
+    ]
+  },
+  truth: {
+    name: 'Truth BBQ',
+    industry: 'Restaurant',
+    city: 'Houston, TX',
+    health: 82,
+    avgRating: 4.6,
+    reviewsMo: 34,
+    postsMo: 10,
+    kpis: [
+      { label: 'Total Reviews', value: '1,234', change: '+34 this month', dir: 'up' },
+      { label: 'Avg Rating', value: '4.6', change: '0.0', dir: 'up' },
+      { label: 'Profile Views', value: '12,400', change: '+18% vs last month', dir: 'up' },
+      { label: 'Direction Requests', value: '1,870', change: '+12%', dir: 'up' },
+      { label: 'Phone Calls', value: '340', change: '+8%', dir: 'up' },
+      { label: 'Photos', value: '92', change: '+6 this month', dir: 'up' }
+    ],
+    reviewTrend: [1100, 1120, 1145, 1160, 1180, 1190, 1200, 1205, 1215, 1220, 1228, 1234],
+    viewsTrend: [8400, 8900, 9200, 9600, 10200, 10700, 11000, 11400, 11700, 12000, 12200, 12400],
+    competitors: [
+      { name: 'The Pit Room', reviews: 380, rating: 4.5, posts: 2, responseRate: '70%', photos: 45 },
+      { name: 'Gatlin BBQ', reviews: 520, rating: 4.4, posts: 4, responseRate: '80%', photos: 35 },
+      { name: 'Truth BBQ', reviews: 1234, rating: 4.6, posts: 10, responseRate: '90%', photos: 92, highlight: true },
+      { name: 'Killen\'s BBQ', reviews: 27, rating: 4.0, posts: 0, responseRate: '30%', photos: 12 }
+    ],
+    posts: [
+      { date: 'Jun 15', text: '🔥 Smoked brisket just came off the pit. 14-hour smoke, perfect bark. Come get it!', views: 3400, clicks: 89 },
+      { date: 'Jun 12', text: '🎵 Live music this Saturday 7-10PM! Reserve your table.', views: 2800, clicks: 65 },
+      { date: 'Jun 8', text: '🍖 Weekend special: 20% off all BBQ plates this Friday-Sunday!', views: 5200, clicks: 145 },
+      { date: 'Jun 5', text: '📸 Tag us in your food photos for a chance to win a free dinner for two!', views: 1800, clicks: 42 },
+      { date: 'Jun 1', text: '⭐ James Beard award winner. Top BBQ in Texas. Come taste the difference.', views: 4100, clicks: 112 }
+    ]
+  },
+  'five-star': {
+    name: 'Five Star Air',
+    industry: 'HVAC',
+    city: 'Houston, TX',
+    health: 65,
+    avgRating: 4.4,
+    reviewsMo: 8,
+    postsMo: 5,
+    kpis: [
+      { label: 'Total Reviews', value: '75', change: '+8 this month', dir: 'up' },
+      { label: 'Avg Rating', value: '4.4', change: '+0.1', dir: 'up' },
+      { label: 'Profile Views', value: '2,100', change: '+15% vs last month', dir: 'up' },
+      { label: 'Direction Requests', value: '145', change: '+22%', dir: 'up' },
+      { label: 'Phone Calls', value: '210', change: '+35% vs last month', dir: 'up' },
+      { label: 'Photos', value: '22', change: '+5 this month', dir: 'up' }
+    ],
+    reviewTrend: [55, 57, 58, 60, 62, 63, 65, 67, 68, 70, 72, 75],
+    viewsTrend: [500, 650, 800, 950, 1100, 1200, 1350, 1500, 1650, 1800, 1950, 2100],
+    competitors: [
+      { name: 'A/C Repair Houston', reviews: 120, rating: 4.2, posts: 2, responseRate: '50%', photos: 30 },
+      { name: 'Modern AC', reviews: 200, rating: 4.5, posts: 6, responseRate: '80%', photos: 42 },
+      { name: 'Five Star Air', reviews: 75, rating: 4.4, posts: 5, responseRate: '85%', photos: 22, highlight: true },
+      { name: 'ABC Cooling', reviews: 45, rating: 4.1, posts: 0, responseRate: '20%', photos: 8 }
+    ],
+    posts: [
+      { date: 'Jun 14', text: '❄️ AC tune-up special: $89. Includes full inspection and filter replacement.', views: 1200, clicks: 45 },
+      { date: 'Jun 10', text: '💡 Quick tip: Replace AC filter every 30 days during summer. Save 15%.', views: 890, clicks: 22 },
+      { date: 'Jun 6', text: '🚨 24/7 emergency AC repair. Same-day service. Call now!', views: 2100, clicks: 78 },
+      { date: 'Jun 2', text: '⭐ "AC went out at 2AM. They were here by 3AM. Unreal service."', views: 650, clicks: 18 },
+      { date: 'May 29', text: '🔥 Prepare for summer: Schedule your AC maintenance now before the heat hits.', views: 780, clicks: 28 }
+    ]
+  }
+};
+
+const MONTHS = ['May 29','Jun 2','Jun 6','Jun 10','Jun 14','Jun 18','Jun 22','Jun 26'];
+
+function switchClient() {
+  const id = document.getElementById('client-select').value;
+  const data = CLIENTS[id];
+  if (!data) return;
+  renderClient(data);
+}
+
+function renderClient(data) {
+  document.getElementById('biz-name').textContent = data.name;
+  document.getElementById('biz-meta').textContent = `${data.industry} · ${data.city} · Member since June 2026`;
+  document.getElementById('health-score').textContent = data.health;
+  document.getElementById('health-score').style.color = data.health >= 75 ? '#3fb950' : data.health >= 50 ? '#d29922' : '#f85149';
+  
+  // KPI Cards
+  document.getElementById('kpi-cards').innerHTML = data.kpis.map(k => `
+    <div class="card">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value}</div>
+      <div class="change ${k.dir}">${k.dir === 'up' ? '▲' : '▼'} ${k.change}</div>
+    </div>
+  `).join('');
+  
+  // Review Chart
+  const maxRev = Math.max(...data.reviewTrend);
+  document.getElementById('review-chart').innerHTML = data.reviewTrend.map((v, i) => `
+    <div class="bar-group">
+      <div class="bar r1" style="height:${(v/maxRev)*90}%;" title="${v} reviews"></div>
+      <div class="bar-label">${MONTHS[i] || ''}</div>
+    </div>
+  `).join('');
+  
+  // Views Chart
+  const maxViews = Math.max(...data.viewsTrend);
+  document.getElementById('views-chart').innerHTML = data.viewsTrend.map((v, i) => `
+    <div class="bar-group">
+      <div class="bar r3" style="height:${(v/maxViews)*90}%;" title="${v} views"></div>
+      <div class="bar-label">${MONTHS[i] || ''}</div>
+    </div>
+  `).join('');
+  
+  // Rating/Posts cards
+  document.getElementById('avg-rating').textContent = data.avgRating.toFixed(1);
+  document.getElementById('reviews-mo').textContent = data.reviewsMo;
+  document.getElementById('posts-mo').textContent = data.postsMo;
+  
+  // Competitor table
+  document.getElementById('competitor-table').innerHTML = data.competitors.map(c => `
+    <tr${c.highlight ? ' class="highlight-row"' : ''}>
+      <td><strong>${c.name}</strong>${c.highlight ? ' ⭐' : ''}</td>
+      <td>${c.reviews}</td>
+      <td>${c.rating.toFixed(1)}</td>
+      <td>${c.posts}</td>
+      <td>${c.responseRate}</td>
+      <td>${c.photos}</td>
+    </tr>
+  `).join('');
+  
+  // Recent posts
+  document.getElementById('recent-posts').innerHTML = data.posts.map(p => `
+    <div class="post-item">
+      <div class="date">${p.date}</div>
+      <div class="text">${p.text}</div>
+      <div class="stats">
+        <span>👁️ ${p.views.toLocaleString()} views</span>
+        <span>🖱️ ${p.clicks} clicks</span>
+        <span>📈 ${p.clicks > 0 ? Math.round((p.clicks/p.views)*100) : 0}% CTR</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Init
+switchClient();
+</script>
+</body>
+</html>
