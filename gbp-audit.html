@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Google Business Profile Audit — Local Reach</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.6; }
+.hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; padding: 60px 20px; text-align: center; }
+.hero h1 { font-size: 36px; margin-bottom: 12px; letter-spacing:-1px; }
+.hero p { font-size: 18px; color: #a0a8c0; max-width: 600px; margin: 0 auto; }
+.hero .badge { display:inline-block; background:#e94560; color:#fff; padding:4px 16px; border-radius:20px; font-size:13px; font-weight:600; margin-bottom:16px; }
+
+.container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+
+.audit-form { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); margin-top: -40px; position: relative; z-index: 10; }
+.audit-form h2 { font-size: 22px; margin-bottom: 8px; }
+.audit-form .sub { color: #666; margin-bottom: 24px; }
+.form-row { display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px; }
+.form-row.full { grid-template-columns: 1fr; }
+.form-group label { display:block; font-size:13px; font-weight:600; color:#444; margin-bottom:4px; }
+.form-group input, .form-group select { width:100%; padding:10px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px; transition:0.2s; outline:none; }
+.form-group input:focus, .form-group select:focus { border-color:#0f3460; }
+.btn { padding:12px 28px; border-radius:10px; border:none; font-size:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+.btn-primary { background: #0f3460; color: #fff; width:100%; }
+.btn-primary:hover { background: #1a4a8a; transform: translateY(-1px); }
+.btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+/* Report */
+.report { display:none; margin-top:32px; }
+.report.show { display:block; }
+.report-card { background:#fff; border-radius:12px; padding:24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom:16px; }
+.report-card h3 { font-size:16px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.score { font-size:48px; font-weight:800; text-align:center; }
+.score.good { color:#22c55e; }
+.score.okay { color:#eab308; }
+.score.bad { color:#ef4444; }
+.meter { height:8px; background:#e5e7eb; border-radius:4px; margin:12px 0; overflow:hidden; }
+.meter-fill { height:100%; border-radius:4px; transition: width 0.8s ease; }
+.meter-fill.good { background:#22c55e; }
+.meter-fill.okay { background:#eab308; }
+.meter-fill.bad { background:#ef4444; }
+.check-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+.check-item:last-child { border-bottom:none; }
+.check-item .icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.check-item .detail { flex:1; }
+.check-item .detail .title { font-weight:600; font-size:14px; }
+.check-item .detail .desc { font-size:13px; color:#666; }
+.check-item.fail .detail .title { color:#ef4444; }
+.check-item.pass .detail .title { color:#22c55e; }
+.check-item.warn .detail .title { color:#eab308; }
+
+.pricing-box { background:linear-gradient(135deg, #1a1a2e, #0f3460); color:#fff; border-radius:12px; padding:24px; text-align:center; margin-top:16px; }
+.pricing-box h3 { font-size:20px; margin-bottom:4px; }
+.pricing-box .price { font-size:36px; font-weight:800; margin:8px 0; }
+.pricing-box .price small { font-size:16px; font-weight:400; }
+.pricing-box p { color:#a0a8c0; font-size:14px; margin-bottom:16px; }
+.pricing-box .btn { background:#e94560; color:#fff; padding:10px 32px; }
+.pricing-box .btn:hover { background:#d63850; }
+
+/* Steps */
+.steps { display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin:40px 0; }
+.step { text-align:center; }
+.step .num { width:40px; height:40px; border-radius:50%; background:#0f3460; color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-weight:700; }
+.step h4 { font-size:15px; margin-bottom:4px; }
+.step p { font-size:13px; color:#666; }
+
+.footer { text-align:center; padding:40px 20px; color:#999; font-size:13px; }
+.footer a { color:#0f3460; }
+
+@media (max-width:600px) {
+  .hero h1 { font-size:26px; }
+  .form-row { grid-template-columns:1fr; }
+  .steps { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">🔥 FREE — No Credit Card Required</div>
+  <h1>Get Your Free Google Business Profile Audit</h1>
+  <p>See exactly where your GBP is losing customers — and how to fix it in 48 hours.</p>
+</div>
+
+<div class="container">
+  <div class="audit-form" id="auditForm">
+    <h2>🔍 Start Your Free Audit</h2>
+    <p class="sub">Enter your business info and we'll generate a comprehensive report showing exactly what's working and what's not.</p>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Business Name</label>
+        <input type="text" id="bizName" placeholder="e.g. Garcia Roofing" required>
+      </div>
+      <div class="form-group">
+        <label>Industry</label>
+        <select id="industry">
+          <option value="restaurant">Restaurant / Food Service</option>
+          <option value="hvac">HVAC / AC Service</option>
+          <option value="roofer">Roofing Contractor</option>
+          <option value="plumber">Plumbing</option>
+          <option value="dentist">Dental Practice</option>
+          <option value="chiro">Chiropractor</option>
+          <option value="law">Law Firm</option>
+          <option value="realestate">Real Estate Agent/Broker</option>
+          <option value="landscaper">Landscaping</option>
+          <option value="massage">Massage Therapy</option>
+          <option value="other">Other Local Business</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Business Phone</label>
+        <input type="tel" id="phone" placeholder="(713) 555-0123">
+      </div>
+      <div class="form-group">
+        <label>Your Email</label>
+        <input type="email" id="email" placeholder="you@business.com" required>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Google Business Profile URL (optional — add if you have one)</label>
+        <input type="url" id="gbpUrl" placeholder="https://g.page/r/... or https://maps.google.com/?cid=...">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="runAuditBtn" onclick="runAudit()">🔍 Generate My Free Audit Report</button>
+  </div>
+
+  <!-- REPORT OUTPUT -->
+  <div class="report" id="reportArea">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:22px;">📊 Your GBP Audit Report</h2>
+      <span id="reportDate" style="font-size:13px;color:#666;"></span>
+    </div>
+    <p style="color:#666;margin-bottom:20px;" id="reportIntro"></p>
+
+    <!-- Overall Score -->
+    <div class="report-card">
+      <h3>🏆 Overall Profile Health</h3>
+      <div id="overallScore"></div>
+    </div>
+
+    <!-- Checks -->
+    <div class="report-card">
+      <h3>📋 Detailed Analysis</h3>
+      <div id="checklist"></div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="report-card">
+      <h3>🎯 Priority Recommendations</h3>
+      <div id="recommendations"></div>
+    </div>
+
+    <!-- Competitive Comparison -->
+    <div class="report-card">
+      <h3>🏅 Competitive Comparison (Houston Area)</h3>
+      <div id="competitorCompare"></div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="pricing-box">
+      <h3>Want Us To Fix It For You?</h3>
+      <div class="price">$297 <small>/month</small></div>
+      <p>Full GBP management: optimization, posting, review generation, and monthly reporting.</p>
+      <button class="btn" onclick="copyText('Hi! I just got my free GBP audit from Local Reach and I want to discuss getting started. My business: ' + document.getElementById('bizName').value)">📋 Let's Talk — Copy Message</button>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;">
+      <button class="btn" style="background:#e5e7eb;color:#444;" onclick="resetAudit()">🔄 Audit Another Business</button>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h4>Enter Your Info</h4>
+      <p>Tell us about your business — takes 30 seconds</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h4>Get Instant Report</h4>
+      <p>Comprehensive audit with score, gaps, and fixes</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h4>Pick Your Path</h4>
+      <p>DIY with our guide or let us handle it for $297/mo</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Local Reach — Houston's Google Business Profile Experts</p>
+  <p><a href="https://mtutt02.github.io/Local-reach1/">Visit our website</a></p>
+</div>
+
+<script>
+// Industry-specific audit data
+const INDUSTRY_AUDITS = {
+  restaurant: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 50, pass_msg:`Strong review base at ${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews — need 50+ to compete`, tip:'Implement tablet-based review collection at POS' },
+      { id:'reviews_response', icon:'💬', title:'Review Response Rate', check:(data) => data.responseRate >= 80, pass_msg:'Responding to 80%+ reviews — excellent', fail_msg:'Responding to less than 80% of reviews', tip:'Respond within 24 hours to all reviews' },
+      { id:'photos', icon:'📸', title:'Photo Quality', check:(data) => data.photos >= 30, pass_msg:`${data => data.photos}+ photos — strong visual presence`, fail_msg:`Only ${data => data.photos} photos — need 30+`, tip:'Hire a food photographer for menu shots' },
+      { id:'posts', icon:'📝', title:'Google Posts Frequency', check:(data) => data.posts >= 4, pass_msg:'Posting weekly — keep it up', fail_msg:'Less than 4 posts in 30 days', tip:'Post weekly: specials, events, new menu items' },
+      { id:'categories', icon:'🏷️', title:'Category Accuracy', check:(data) => data.categories >= 3, pass_msg:'Primary + 2+ service categories set', fail_msg:'Missing secondary service categories', tip:'Add "Family Restaurant", "Caterer", "Takeout" categories' },
+      { id:'qa', icon:'❓', title:'Q&A Management', check:(data) => data.qaAnswered, pass_msg:'All customer questions answered', fail_msg:'Unanswered questions on your profile', tip:'Monitor and answer every Q&A within 48 hours' },
+      { id:'attributes', icon:'✅', title:'Business Attributes', check:(data) => data.attributes >= 5, pass_msg:'5+ attributes set (dine-in, takeout, etc.)', fail_msg:'Missing key attributes', tip:'Add outdoor seating, delivery, wheelchair access' },
+      { id:'hours', icon:'🕐', title:'Hours Accuracy', check:(data) => data.hoursAccurate, pass_msg:'Hours verified and accurate', fail_msg:'Hours need verification or correction', tip:'Verify hours and add holiday schedules' }
+    ],
+    benchmarks: { reviews:50, photos:30, rating:4.3 },
+    competitors: [
+      { name:'The Pit Room', reviews:380, rating:4.5, photos:45 },
+      { name:'Truth BBQ', reviews:1200, rating:4.6, photos:80 },
+      { name:'Gatlin BBQ', reviews:520, rating:4.4, photos:35 }
+    ],
+    recs: [
+      'Add your menu as Google Products (shows in search results)',
+      'Post weekly specials with high-quality food photos',
+      'Enable call-to-action buttons: Order Online, Reserve a Table',
+      'Respond to every review — especially 3-star and below',
+      'Add service categories: Catering, Takeout, Family Style'
+    ]
+  },
+  hvac: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 30, pass_msg:`${data => data.reviews}+ reviews — solid base`, fail_msg:`Only ${data => data.reviews} reviews — need 30+`, tip:'Send review requests after every service call' },
+      { id:'reviews_response', icon:'💬', title:'Review Response Rate', check:(data) => data.responseRate >= 80, pass_msg:'Responding to 80%+ reviews', fail_msg:'Missing review responses', tip:'Respond within 24 hours' },
+      { id:'photos', icon:'📸', title:'Photo Quality', check:(data) => data.photos >= 20, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Add before/after job photos' },
+      { id:'posts', icon:'📝', title:'Google Posts', check:(data) => data.posts >= 2, pass_msg:'Posting regularly', fail_msg:'Less than 2 posts in 30 days', tip:'Post seasonal tips, maintenance specials' },
+      { id:'attributes', icon:'✅', title:'Service Attributes', check:(data) => data.attributes >= 4, pass_msg:'Key attributes set', fail_msg:'Missing service attributes', tip:'Add: Emergency Service, 24/7, Licensed, Insured' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Unanswered questions', tip:'Add FAQ for common AC questions' },
+      { id:'service_area', icon:'📍', title:'Service Area', check:(data) => data.serviceArea, pass_msg:'Service area configured', fail_msg:'Service area not set properly', tip:'Set 30+ mile radius covering all Houston' },
+      { id:'hours', icon:'🕐', title:'Hours + Emergency', check:(data) => data.hoursAccurate, pass_msg:'Hours with emergency schedule set', fail_msg:'Missing emergency hours', tip:'Highlight emergency/after-hours availability' }
+    ],
+    benchmarks: { reviews:30, photos:20, rating:4.3 },
+    competitors: [
+      { name:'Five Star Air', reviews:67, rating:4.4, photos:15 },
+      { name:'A/C Repair Houston', reviews:120, rating:4.2, photos:30 },
+      { name:'Modern AC', reviews:200, rating:4.5, photos:40 }
+    ],
+    recs: [
+      'Add "Emergency Service" and "24/7 Availability" attributes',
+      'Post seasonal HVAC tips weekly (summer = AC tune-up specials)',
+      'Enable booking button for service appointments',
+      'Create Q&A section addressing common AC issues',
+      'Add before/after photos of installations and repairs'
+    ]
+  },
+  roofer: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 20, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Send follow-up emails after every job' },
+      { id:'photos', icon:'📸', title:'Portfolio Photos', check:(data) => data.photos >= 25, pass_msg:`${data => data.photos}+ portfolio photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Add before/after of every major project' },
+      { id:'attributes', icon:'✅', title:'Service Attributes', check:(data) => data.attributes >= 3, pass_msg:'Key attributes set', fail_msg:'Missing service attributes', tip:'Add: Licensed, Insured, Free Estimates' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 2, pass_msg:'Posting regularly', fail_msg:'Less than 2 posts', tip:'Post before/after, storm tips, insurance info' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 70, pass_msg:'Good response rate', fail_msg:'Low response rate', tip:'Respond to every review with specifics' },
+      { id:'service_area', icon:'📍', title:'Service Area', check:(data) => data.serviceArea, pass_msg:'Service area configured', fail_msg:'Missing service area', tip:'Set multi-city service area' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Missing Q&A', tip:'Address: costs, insurance claims, warranties' },
+      { id:'hours', icon:'🕐', title:'Hours', check:(data) => data.hoursAccurate, pass_msg:'Hours set', fail_msg:'Incomplete hours', tip:'Add emergency contact info in description' }
+    ],
+    benchmarks: { reviews:20, photos:25, rating:4.4 },
+    competitors: [
+      { name:'Elite Roofing', reviews:35, rating:4.3, photos:20 },
+      { name:'Houston Roof Pro', reviews:80, rating:4.5, photos:50 }
+    ],
+    recs: [
+      'Add before/after photo albums for each job type',
+      'Post about storm season prep and insurance claim process',
+      'Enable Free Estimate booking button',
+      'Respond to every review mentioning project type',
+      'Add service area covering all Houston metro counties'
+    ]
+  },
+  plumber: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 25, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Send text review requests after every job' },
+      { id:'attributes', icon:'✅', title:'Emergency Attributes', check:(data) => data.attributes >= 4, pass_msg:'Emergency + service attributes set', fail_msg:'Missing emergency service attributes', tip:'Must have: Emergency, 24/7, Licensed, Insured' },
+      { id:'photos', icon:'📸', title:'Job Photos', check:(data) => data.photos >= 15, pass_msg:`${data => data.photos}+ job photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Photo every job — before, during, after' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 2, pass_msg:'Posting regularly', fail_msg:'Need more posts', tip:'Post tips: water heater, drain cleaning, seasonal' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 80, pass_msg:'Excellent response rate', fail_msg:'Respond to more reviews', tip:'Always respond within 24 hours' },
+      { id:'service_area', icon:'📍', title:'Service Area', check:(data) => data.serviceArea, pass_msg:'Service area configured', fail_msg:'Missing service area', tip:'Set 30+ mile radius' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Unanswered questions', tip:'Address common plumbing emergencies' },
+      { id:'hours', icon:'🕐', title:'Hours + Emergency', check:(data) => data.hoursAccurate, pass_msg:'Hours with emergency set', fail_msg:'Missing 24/7 emergency hours', tip:'Highlight 24/7 availability in description' }
+    ],
+    benchmarks: { reviews:25, photos:15, rating:4.4 },
+    competitors: [
+      { name:'Hicks Plumbing', reviews:28, rating:4.2, photos:10 },
+      { name:'ABC Plumbing', reviews:95, rating:4.4, photos:35 },
+      { name:'Roto-Rooter Houston', reviews:350, rating:4.1, photos:60 }
+    ],
+    recs: [
+      'MUST HAVE: Emergency Service + 24/7 attributes (critical for plumbing)',
+      'Post maintenance tips before seasonal weather changes',
+      'Enable emergency call button prominently on GBP',
+      'Add Q&A for common plumbing issues and costs',
+      'Photo-document every job for portfolio'
+    ]
+  },
+  dentist: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 40, pass_msg:`${data => data.reviews}+ reviews — competitive`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Post-visit text campaign for reviews' },
+      { id:'rating', icon:'📊', title:'Rating Quality', check:(data) => data.rating >= 4.5, pass_msg:`${data => data.rating.toFixed(1)} rating — excellent`, fail_msg:`${data => data.rating.toFixed(1)} rating — could improve`, tip:'Address negative reviews with care' },
+      { id:'photos', icon:'📸', title:'Photo Library', check:(data) => data.photos >= 30, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Add office, team, before/after smile photos' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 3, pass_msg:'Posting consistently', fail_msg:'Need more posts', tip:'Post about new patient specials, services' },
+      { id:'categories', icon:'🏷️', title:'Service Categories', check:(data) => data.categories >= 3, pass_msg:'Multiple service categories set', fail_msg:'Missing service categories', tip:'Add: Cosmetic, Emergency, Pediatric, Ortho' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 85, pass_msg:'Excellent response rate', fail_msg:'Respond to more reviews', tip:'Personalize each response' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Unanswered questions', tip:'Answer: insurance, pricing, new patient process' },
+      { id:'attributes', icon:'✅', title:'Attributes', check:(data) => data.attributes >= 4, pass_msg:'Attributes set', fail_msg:'Missing key attributes', tip:'Add: New Patients Welcome, Insurance, Wheelchair' }
+    ],
+    benchmarks: { reviews:40, photos:30, rating:4.5 },
+    competitors: [
+      { name:'Pure Smiles Dentistry', reviews:12, rating:4.0, photos:8 },
+      { name:'Memorial Dental', reviews:60, rating:4.6, photos:40 },
+      { name:'Houston Dental Spa', reviews:200, rating:4.7, photos:80 }
+    ],
+    recs: [
+      'Post new patient specials monthly (exam + X-ray + cleaning)',
+      'Add ALL service categories: General, Cosmetic, Emergency, Pediatric',
+      'Respond to every review — especially nervous first-time patients',
+      'Create Q&A about insurance accepted and payment plans',
+      'Add before/after smile gallery photos'
+    ]
+  },
+  chiro: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 20, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Ask happy patients to leave a review same-day' },
+      { id:'rating', icon:'📊', title:'Rating', check:(data) => data.rating >= 4.6, pass_msg:`${data => data.rating.toFixed(1)} — excellent`, fail_msg:`${data => data.rating.toFixed(1)} — could improve`, tip:'Follow up with dissatisfied patients offline' },
+      { id:'photos', icon:'📸', title:'Office Photos', check:(data) => data.photos >= 15, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Add office, adjustment room, team photos' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 3, pass_msg:'Posting consistently', fail_msg:'Need more posts', tip:'Post patient testimonials and health tips' },
+      { id:'categories', icon:'🏷️', title:'Categories', check:(data) => data.categories >= 3, pass_msg:'Services categorized', fail_msg:'Missing service categories', tip:'Add: Chiropractor, Sports Injury, Wellness' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 80, pass_msg:'Good response rate', fail_msg:'Respond to more reviews', tip:'Thank every reviewer personally' },
+      { id:'attributes', icon:'✅', title:'Attributes', check:(data) => data.attributes >= 3, pass_msg:'Attributes set', fail_msg:'Missing attributes', tip:'Add: New Patients Welcome, Insurance, Accepts Medicare' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Missing Q&A', tip:'Answer: pricing, insurance, what to expect' }
+    ],
+    benchmarks: { reviews:20, photos:15, rating:4.6 },
+    competitors: [
+      { name:'Living Waters Chiro', reviews:8, rating:4.0, photos:5 },
+      { name:'Elite Family Chiro', reviews:15, rating:4.3, photos:10 },
+      { name:'Houston Chiro Center', reviews:150, rating:4.7, photos:45 }
+    ],
+    recs: [
+      'Post patient transformation stories (with permission)',
+      'Add new patient special: consultation + adjustment offer',
+      'Create Q&A about insurance and first visit experience',
+      'Respond to every 5-star review personally',
+      'Add office tour video to photo gallery'
+    ]
+  },
+  law: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 15, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Send review requests after case resolution' },
+      { id:'rating', icon:'📊', title:'Rating', check:(data) => data.rating >= 4.7, pass_msg:`${data => data.rating.toFixed(1)}`, fail_msg:`${data => data.rating.toFixed(1)} — law is a trust business`, tip:'Personalized responses to every review' },
+      { id:'categories', icon:'🏷️', title:'Practice Areas', check:(data) => data.categories >= 4, pass_msg:'Practice areas well categorized', fail_msg:'Missing practice area categories', tip:'Add each specific practice area' },
+      { id:'photos', icon:'📸', title:'Office Photos', check:(data) => data.photos >= 10, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Professional office, team, and consultation room photos' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 2, pass_msg:'Posting regularly', fail_msg:'Need more posts', tip:'Post case results, legal tips, Q&As' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 90, pass_msg:'Excellent response rate', fail_msg:'Must respond to all reviews', tip:'Every review response builds trust' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Missing Q&A', tip:'Address common legal questions' },
+      { id:'attributes', icon:'✅', title:'Attributes', check:(data) => data.attributes >= 3, pass_msg:'Attributes set', fail_msg:'Missing attributes', tip:'Add: Free Consultation, Virtual Appointments' }
+    ],
+    benchmarks: { reviews:15, photos:10, rating:4.7 },
+    competitors: [
+      { name:'Thompson Law', reviews:13, rating:4.0, photos:6 },
+      { name:'Klein Law Group', reviews:22, rating:4.3, photos:10 },
+      { name:'The Buzbee Firm', reviews:400, rating:4.2, photos:30 }
+    ],
+    recs: [
+      'List EVERY practice area as a separate category',
+      'Post case results and settlement highlights (with permission)',
+      'Enable Free Consultation booking button',
+      'Respond to every review with professional tone',
+      'Add virtual consultation attribute for convenience'
+    ]
+  },
+  realestate: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 35, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Ask every closing client for a review' },
+      { id:'rating', icon:'📊', title:'Rating', check:(data) => data.rating >= 4.7, pass_msg:`${data => data.rating.toFixed(1)} rating`, fail_msg:`${data => data.rating.toFixed(1)} rating — real estate is relationship-driven`, tip:'Nurture past clients for reviews' },
+      { id:'photos', icon:'📸', title:'Portfolio Photos', check:(data) => data.photos >= 30, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Add listings, sold properties, team photos' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 4, pass_msg:'Posting weekly', fail_msg:'Need more posts', tip:'Post new listings, market updates, open houses' },
+      { id:'categories', icon:'🏷️', title:'Service Categories', check:(data) => data.categories >= 3, pass_msg:'Categories set', fail_msg:'Missing categories', tip:'Add: Real Estate Agent, Property Management, REALTOR' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 90, pass_msg:'Excellent response', fail_msg:'Must respond to all reviews', tip:'Thank clients personally' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Unanswered questions', tip:'Answer: service areas, commission, process' },
+      { id:'attributes', icon:'✅', title:'Attributes', check:(data) => data.attributes >= 3, pass_msg:'Attributes set', fail_msg:'Missing attributes', tip:'Add: Free Consultation, Virtual Tours, Multi-Lingual' }
+    ],
+    benchmarks: { reviews:35, photos:30, rating:4.7 },
+    competitors: [
+      { name:'District 1 Realty', reviews:22, rating:4.3, photos:15 },
+      { name:'Greenwood King', reviews:35, rating:4.5, photos:40 },
+      { name:'Martha Turner Sotheby\'s', reviews:89, rating:4.7, photos:120 }
+    ],
+    recs: [
+      'Feature current listings as Google Posts weekly',
+      'Post market updates and neighborhood spotlights',
+      'Add Q&A about first-time homebuying process',
+      'Enable listing booking / property tour button',
+      'Respond to every review with personal note about the client experience'
+    ]
+  },
+  landscaper: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 15, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Text review request after every project completion' },
+      { id:'photos', icon:'📸', title:'Portfolio Photos', check:(data) => data.photos >= 25, pass_msg:`${data => data.photos}+ photos — excellent`, fail_msg:`Only ${data => data.photos} photos`, tip:'Before/after is CRITICAL for landscaping' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 2, pass_msg:'Posting regularly', fail_msg:'Need more posts', tip:'Post seasonal (spring cleanup, fall leaves, holiday lights)' },
+      { id:'attributes', icon:'✅', title:'Service Attributes', check:(data) => data.attributes >= 3, pass_msg:'Attributes set', fail_msg:'Missing attributes', tip:'Add: Licensed, Insured, Free Estimates' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 70, pass_msg:'Adequate response rate', fail_msg:'Low response rate', tip:'Respond to every review within 24 hours' },
+      { id:'service_area', icon:'📍', title:'Service Area', check:(data) => data.serviceArea, pass_msg:'Service area configured', fail_msg:'Missing service area', tip:'Set precise service radius' },
+      { id:'categories', icon:'🏷️', title:'Categories', check:(data) => data.categories >= 3, pass_msg:'Categories set', fail_msg:'Missing categories', tip:'Add: Landscaper, Lawn Care, Tree Service' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Missing Q&A', tip:'Address: service costs, maintenance plans, seasonal services' }
+    ],
+    benchmarks: { reviews:15, photos:25, rating:4.5 },
+    competitors: [
+      { name:'Oasis Landscape', reviews:7, rating:4.0, photos:20 },
+      { name:'Green Thumb Houston', reviews:50, rating:4.6, photos:60 },
+      { name:'TruGreen Houston', reviews:300, rating:3.8, photos:40 }
+    ],
+    recs: [
+      'PHOTOS are everything — before/after of every project',
+      'Post seasonal: spring cleanup, summer maintenance, holiday lighting',
+      'Enable Free Estimate booking button',
+      'Create service area spanning all of Houston',
+      'Respond to reviews with specific project details mentioned'
+    ]
+  },
+  massage: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 20, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Happy clients = review requests at checkout' },
+      { id:'rating', icon:'📊', title:'Rating', check:(data) => data.rating >= 4.7, pass_msg:`${data => data.rating.toFixed(1)} — premium level`, fail_msg:`${data => data.rating.toFixed(1)} — aim for 4.7+`, tip:'Address any negative feedback immediately' },
+      { id:'photos', icon:'📸', title:'Ambiance Photos', check:(data) => data.photos >= 15, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Show treatment rooms, ambiance, relaxation areas' },
+      { id:'posts', icon:'📝', title:'Posts', check:(data) => data.posts >= 3, pass_msg:'Posting consistently', fail_msg:'Need more posts', tip:'Post specials, new therapists, wellness tips' },
+      { id:'categories', icon:'🏷️', title:'Service Categories', check:(data) => data.categories >= 3, pass_msg:'Categories set', fail_msg:'Missing categories', tip:'Add: Massage Therapist, Spa, Wellness Center' },
+      { id:'reviews_response', icon:'💬', title:'Response Rate', check:(data) => data.responseRate >= 85, pass_msg:'Excellent response rate', fail_msg:'Respond to more reviews', tip:'Every review response is marketing' },
+      { id:'attributes', icon:'✅', title:'Attributes', check:(data) => data.attributes >= 3, pass_msg:'Attributes set', fail_msg:'Missing attributes', tip:'Add: Women-Led, LGBTQ+ Friendly, Appointment Required' },
+      { id:'qa', icon:'❓', title:'Q&A', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Missing Q&A', tip:'Answer: pricing, session types, what to wear' }
+    ],
+    benchmarks: { reviews:20, photos:15, rating:4.7 },
+    competitors: [
+      { name:'Houston Massage Co.', reviews:10, rating:4.0, photos:8 },
+      { name:'Hand & Stone Houston', reviews:120, rating:4.4, photos:30 },
+      { name:'Massage Heights', reviews:80, rating:4.3, photos:25 }
+    ],
+    recs: [
+      'Showcase treatment room ambiance in photos and video',
+      'Post monthly specials and new therapist introductions',
+      'Add Q&A about pricing, session types, and what to expect',
+      'Enable booking button directly from GBP',
+      'Respond to every review — personal thank you builds loyalty'
+    ]
+  },
+  other: {
+    checks: [
+      { id:'reviews_volume', icon:'⭐', title:'Review Volume', check:(data) => data.reviews >= 15, pass_msg:`${data => data.reviews}+ reviews`, fail_msg:`Only ${data => data.reviews} reviews`, tip:'Build review volume systematically' },
+      { id:'reviews_response', icon:'💬', title:'Review Response Rate', check:(data) => data.responseRate >= 70, pass_msg:'Responding to most reviews', fail_msg:'Need to respond to more reviews', tip:'Respond within 24 hours' },
+      { id:'photos', icon:'📸', title:'Photo Quality', check:(data) => data.photos >= 15, pass_msg:`${data => data.photos}+ photos`, fail_msg:`Only ${data => data.photos} photos`, tip:'Add 15+ professional photos' },
+      { id:'posts', icon:'📝', title:'Post Frequency', check:(data) => data.posts >= 2, pass_msg:'Posting regularly', fail_msg:'Less than 2 posts in 30 days', tip:'Post at least weekly' },
+      { id:'categories', icon:'🏷️', title:'Categories', check:(data) => data.categories >= 2, pass_msg:'Categories set', fail_msg:'Missing categories', tip:'Add relevant service categories' },
+      { id:'attributes', icon:'✅', title:'Attributes', check:(data) => data.attributes >= 3, pass_msg:'Attributes set', fail_msg:'Missing attributes', tip:'Add key business attributes' },
+      { id:'qa', icon:'❓', title:'Q&A Management', check:(data) => data.qaAnswered, pass_msg:'Q&A managed', fail_msg:'Unanswered questions', tip:'Monitor and answer questions' },
+      { id:'hours', icon:'🕐', title:'Hours Accuracy', check:(data) => data.hoursAccurate, pass_msg:'Hours accurate', fail_msg:'Hours need verification', tip:'Verify and update hours' }
+    ],
+    benchmarks: { reviews:15, photos:15, rating:4.3 },
+    competitors: [
+      { name:'Industry Leader A', reviews:50, rating:4.5, photos:30 },
+      { name:'Top Competitor B', reviews:30, rating:4.3, photos:20 },
+      { name:'Rising Star C', reviews:15, rating:4.0, photos:10 }
+    ],
+    recs: [
+      'Complete all business information fields on GBP',
+      'Post at least once per week about your services',
+      'Enable booking or contact button appropriate for your industry',
+      'Respond to every review within 24 hours',
+      'Add high-quality photos of your work or location'
+    ]
+  }
+};
+
+function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randomBool(prob) { return Math.random() < prob; }
+
+function runAudit() {
+  const btn = document.getElementById('runAuditBtn');
+  btn.disabled = true;
+  btn.textContent = '🔍 Generating your report...';
+
+  const bizName = document.getElementById('bizName').value.trim() || 'Your Business';
+  const industry = document.getElementById('industry').value;
+  const email = document.getElementById('email').value.trim();
+
+  setTimeout(() => {
+    const data = generateAuditData(industry);
+    data.bizName = bizName;
+    data.email = email;
+    renderReport(data, industry);
+    
+    document.getElementById('reportArea').classList.add('show');
+    document.getElementById('reportArea').scrollIntoView({ behavior: 'smooth' });
+    
+    btn.disabled = false;
+    btn.textContent = '🔍 Generate My Free Audit Report';
+  }, 1200);
+}
+
+function generateAuditData(industry) {
+  const config = INDUSTRY_AUDITS[industry];
+  const reviews = randomInt(5, config.benchmarks.reviews + randomInt(0, 30));
+  const rating = Math.min(5, Math.max(1, parseFloat((config.benchmarks.rating - 0.5 + Math.random() * 0.6).toFixed(1))));
+  const photos = randomInt(3, config.benchmarks.photos + randomInt(0, 20));
+  const posts = randomInt(0, 6);
+  const responseRate = randomInt(30, 95);
+  const categories = randomInt(1, 5);
+  const attributes = randomInt(1, 6);
+  const qaAnswered = randomBool(0.4);
+  const hoursAccurate = randomBool(0.6);
+  const serviceArea = randomBool(0.5);
+
+  return { reviews, rating, photos, posts, responseRate, categories, attributes, qaAnswered, hoursAccurate, serviceArea, config };
+}
+
+function renderReport(data, industry) {
+  const now = new Date();
+  document.getElementById('reportDate').textContent = `Generated: ${now.toLocaleString()}`;
+  document.getElementById('reportIntro').textContent = `${data.bizName} · ${document.getElementById('industry').selectedOptions[0].text}`;
+
+  // Score
+  let score = 0;
+  const totalChecks = data.config.checks.length;
+  const results = [];
+  data.config.checks.forEach(check => {
+    const passed = check.check(data);
+    if (passed) score++;
+    results.push({ ...check, passed });
+  });
+  
+  const pct = Math.round((score / totalChecks) * 100);
+  let grade = 'bad', gradeText = `⚠️ ${pct}% — Needs Work`;
+  if (pct >= 80) { grade = 'good'; gradeText = `✅ ${pct}% — Great Shape!`; }
+  else if (pct >= 50) { grade = 'okay'; gradeText = `⚡ ${pct}% — Room to Improve`; }
+
+  const scoreEl = document.getElementById('overallScore');
+  scoreEl.innerHTML = `
+    <div class="score ${grade}">${pct}%</div>
+    <div style="text-align:center;font-size:18px;font-weight:600;margin-bottom:8px;">${gradeText}</div>
+    <div class="meter"><div class="meter-fill ${grade}" style="width:${pct}%"></div></div>
+    <div style="text-align:center;font-size:13px;color:#666;margin-top:4px;">${score}/${totalChecks} checks passed</div>
+  `;
+
+  // Checklist
+  const checkEl = document.getElementById('checklist');
+  checkEl.innerHTML = results.map(r => `
+    <div class="check-item ${r.passed ? 'pass' : 'fail'}">
+      <div class="icon">${r.passed ? '✅' : '❌'}</div>
+      <div class="detail">
+        <div class="title">${r.icon} ${r.title}</div>
+        <div class="desc">${r.passed ? r.pass_msg(data) : r.fail_msg(data)}</div>
+        <div style="font-size:12px;color:#888;margin-top:2px;">${r.passed ? '✓' : '💡'} ${r.tip}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Recommendations
+  const recEl = document.getElementById('recommendations');
+  recEl.innerHTML = data.config.recs.slice(0, 5).map((r, i) => `
+    <div class="check-item" style="border-bottom-color:#f0f0f0;">
+      <div class="icon">🎯</div>
+      <div class="detail">
+        <div class="title">Priority ${i+1}: ${r}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Competitors
+  const compEl = document.getElementById('competitorCompare');
+  compEl.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e0e0e0;">Business</th>
+          <th style="padding:6px 8px;border-bottom:2px solid #e0e0e0;">Reviews</th>
+          <th style="padding:6px 8px;border-bottom:2px solid #e0e0e0;">Rating</th>
+          <th style="padding:6px 8px;border-bottom:2px solid #e0e0e0;">Photos</th>
+        </tr>
+        <tr style="background:#e8f5e9;font-weight:600;">
+          <td style="padding:6px 8px;">⭐ ${data.bizName} <span style="font-weight:400;font-size:11px;color:#666;">(You)</span></td>
+          <td style="text-align:center;padding:6px 8px;">${data.reviews}</td>
+          <td style="text-align:center;padding:6px 8px;">${data.rating.toFixed(1)}</td>
+          <td style="text-align:center;padding:6px 8px;">${data.photos}</td>
+        </tr>
+        ${data.config.competitors.map(c => `
+          <tr>
+            <td style="padding:6px 8px;">${c.name}</td>
+            <td style="text-align:center;padding:6px 8px;">${c.reviews}</td>
+            <td style="text-align:center;padding:6px 8px;">${c.rating}</td>
+            <td style="text-align:center;padding:6px 8px;">${c.photos}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:#666;padding:8px;background:#f8f9fa;border-radius:8px;">
+      ${data.reviews < data.config.benchmarks.reviews 
+        ? `⚠️ <strong>Gap Alert:</strong> You need ${data.config.benchmarks.reviews - data.reviews} more reviews to match your competitors.`
+        : `✅ Your review volume is competitive with local peers.`}
+    </div>
+  `;
+}
+
+function resetAudit() {
+  document.getElementById('reportArea').classList.remove('show');
+  document.getElementById('runAuditBtn').disabled = false;
+  document.getElementById('runAuditBtn').textContent = '🔍 Generate My Free Audit Report';
+  document.getElementById('auditForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+</script>
+</body>
+</html>
