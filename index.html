@@ -27,13 +27,20 @@
             font-size: 24px;
             font-weight: 700;
             color: #1a1a1a;
+            flex-shrink: 0;
         }
         .logo span { color: #e94560; }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
         nav a {
             text-decoration: none;
             color: #555;
             font-weight: 500;
-            font-size: 15px;
+            font-size: 14px;
+            transition: color 0.2s;
         }
         nav a:hover { color: #e94560; }
 
@@ -243,7 +250,13 @@
     <nav>
         <div class="container">
             <div class="logo">Local<span>Reach</span></div>
-            <a href="gbp-audit.html" style="margin-right:16px;color:#4f46e5;font-weight:600;">🔍 Free Audit</a><a href="mailto:marcus@localreach.co">marcus@localreach.co</a>
+            <div class="nav-links">
+                <a href="gbp-audit.html">Free Audit</a>
+                <a href="demo.html">AI Demos</a>
+                <a href="refer.html">Referral</a>
+                <a href="launch.html">All Tools</a>
+                <a href="mailto:marcus@localreach.co">marcus@localreach.co</a>
+            </div>
         </div>
     </nav>
 
@@ -251,11 +264,16 @@
         <div class="container">
             <h1>Your Google Business Profile,<br><span>handled.</span></h1>
             <p>We post weekly updates, respond to every review, and track what's working. More calls, more walk-ins. $297/month.</p>
-            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;"><a href="gbp-audit.html" class="hero-cta">🔍 Free Audit →</a><a href="#contact" class="hero-cta" style="background:#374151;">Get Started →</a></div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="gbp-audit.html" class="hero-cta" style="background:#3b82f6;">🔍 Free Audit →</a>
+                <a href="#contact" class="hero-cta">Get Started →</a>
+                <a href="demo.html" class="hero-cta" style="background:#0f172a;">🤖 AI Demos</a>
+            </div>
             <div class="trust-row">
                 <span>📋 Weekly posts</span>
                 <span>⭐ Review management</span>
                 <span>📊 Monthly reports</span>
+                <span>💰 $300 referral bonus</span>
             </div>
         </div>
     </section>
@@ -318,6 +336,69 @@
         </div>
     </section>
 
+    <section class="tools" id="tools" style="padding:80px 0;background:#f8f8f8;">
+        <div class="container">
+            <h2 style="text-align:center;font-size:36px;margin-bottom:40px;">⚒️ All Tools</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+                <a href="gbp-audit.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">🔍</div>
+                    <div style="font-weight:600;font-size:14px;">Free GBP Audit</div>
+                    <div style="font-size:12px;color:#888;">Self-serve lead gen</div>
+                </a>
+                <a href="ops.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">📊</div>
+                    <div style="font-weight:600;font-size:14px;">Ops Center</div>
+                    <div style="font-size:12px;color:#888;">CRM + pipeline</div>
+                </a>
+                <a href="score.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">🔥</div>
+                    <div style="font-weight:600;font-size:14px;">Prospect Priority</div>
+                    <div style="font-size:12px;color:#888;">40 scored leads</div>
+                </a>
+                <a href="call.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">📞</div>
+                    <div style="font-weight:600;font-size:14px;">Call Scripts</div>
+                    <div style="font-size:12px;color:#888;">Timer + objection handling</div>
+                </a>
+                <a href="demo.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">🤖</div>
+                    <div style="font-weight:600;font-size:14px;">AAA Demos</div>
+                    <div style="font-size:12px;color:#888;">3 working AI demos</div>
+                </a>
+                <a href="propose.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">📄</div>
+                    <div style="font-weight:600;font-size:14px;">Proposal Generator</div>
+                    <div style="font-size:12px;color:#888;">Close deals instantly</div>
+                </a>
+                <a href="calendar.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">📅</div>
+                    <div style="font-weight:600;font-size:14px;">Content Calendar</div>
+                    <div style="font-size:12px;color:#888;">Schedule GBP posts</div>
+                </a>
+                <a href="client.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">📈</div>
+                    <div style="font-weight:600;font-size:14px;">Client Dashboard</div>
+                    <div style="font-size:12px;color:#888;">Post-onboarding view</div>
+                </a>
+                <a href="kpi.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">📊</div>
+                    <div style="font-weight:600;font-size:14px;">Business KPIs</div>
+                    <div style="font-size:12px;color:#888;">Health dashboard</div>
+                </a>
+                <a href="refer.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">💰</div>
+                    <div style="font-weight:600;font-size:14px;">Referral Program</div>
+                    <div style="font-size:12px;color:#888;">$300 per sign-up</div>
+                </a>
+                <a href="launch.html" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-decoration:none;color:inherit;text-align:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                    <div style="font-size:28px;margin-bottom:8px;">🚀</div>
+                    <div style="font-weight:600;font-size:14px;">Command Center</div>
+                    <div style="font-size:12px;color:#888;">Status hub</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <section class="contact" id="contact">
         <div class="container">
             <h2>Want more customers?</h2>
@@ -329,11 +410,9 @@
 
     <footer>
         <div class="container">
-            Local Reach &mdash; Houston, TX
+            Local Reach &mdash; Houston, TX &nbsp;·&nbsp; <a href="launch.html" style="color:#e94560;">🚀 Command Center</a> &nbsp;·&nbsp; <a href="demo.html" style="color:#e94560;">🤖 AI Demos</a> &nbsp;·&nbsp; <a href="refer.html" style="color:#e94560;">💰 Refer $300</a>
         </div>
     </footer>
 
-
-<p style="text-align:center;margin-top:40px;"><a href="gbp-audit.html" style="color:#4f46e5;font-weight:600;">🔍 Get Your Free Google Business Profile Audit →</a></p>
 </body>
 </html>
